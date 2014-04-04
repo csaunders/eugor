@@ -1,6 +1,7 @@
 package main
 
 import (
+	"eugor/dungeon"
 	"eugor/logger"
 	"github.com/nsf/termbox-go"
 )
@@ -53,9 +54,11 @@ func main() {
 
 	char := Character{x: 5, y: 5}
 	logger := logger.Logger{Render: false}
+	dungeon := dungeon.NewMap()
 
 	for running {
 		termbox.Clear(termbox.ColorGreen, termbox.ColorBlack)
+		dungeon.Draw()
 		logger.Draw()
 		char.draw()
 		termbox.Flush()
