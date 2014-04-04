@@ -5,6 +5,10 @@ import (
 )
 
 func DrawString(x, y int, msg string, fg, bg termbox.Attribute) {
+	for index, letter := range msg {
+		letterPosition := x + index
+		termbox.SetCell(letterPosition, y, letter, fg, bg)
+	}
 }
 
 func DrawSimpleBox(x, y, w, h int, fg, bg termbox.Attribute) {

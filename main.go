@@ -52,7 +52,7 @@ func main() {
 	defer termbox.Close()
 
 	char := Character{x: 5, y: 5}
-	logger := logger.Logger{}
+	logger := logger.Logger{Render: false}
 
 	for running {
 		termbox.Clear(termbox.ColorGreen, termbox.ColorBlack)
@@ -60,12 +60,14 @@ func main() {
 		char.draw()
 		termbox.Flush()
 		event := termbox.PollEvent()
-		logger.Append(event)
+		logger = logger.Append(event)
 		switch {
 		case event.Key == termbox.KeyEsc:
 			running = false
 		case char.isMovementEvent(event):
 			char = char.move(event.Key)
+		case event.Ch == '`':
+			logger = logger.ToggleRender()
 		default:
 			termbox.SetCell(10, 10, event.Ch, termbox.ColorRed, termbox.ColorBlack)
 		}
