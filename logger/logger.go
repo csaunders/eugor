@@ -43,6 +43,7 @@ func (l Logger) Draw() {
 	if l.Render == false {
 		return
 	}
+	l.clear()
 	l.drawLogEvents()
 	l.drawBorder()
 }
@@ -50,6 +51,11 @@ func (l Logger) Draw() {
 func (l Logger) StartingY() int {
 	_, height := termbox.Size()
 	return height - (height / 4)
+}
+
+func (l Logger) clear() {
+	width, height := termbox.Size()
+	termboxext.Fill(0, l.StartingY(), width, height/4, ' ', termbox.ColorCyan, termbox.ColorBlack)
 }
 
 func (l Logger) drawBorder() {

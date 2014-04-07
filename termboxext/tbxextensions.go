@@ -11,6 +11,14 @@ func DrawString(x, y int, msg string, fg, bg termbox.Attribute) {
 	}
 }
 
+func Fill(x, y, w, h int, fill rune, fg, bg termbox.Attribute) {
+	for i := x; i < x+w; i++ {
+		for j := y; j < y+h; j++ {
+			termbox.SetCell(i, j, fill, fg, bg)
+		}
+	}
+}
+
 func DrawSimpleBox(x, y, w, h int, fg, bg termbox.Attribute) {
 	DrawBox(x, y, w, h, '+', '-', '|', fg, bg)
 }
@@ -30,7 +38,7 @@ func DrawBox(startingX, startingY, w, h int, corner, top, side rune, fg, bg term
 			} else {
 				continue
 			}
-			termbox.SetCell(x, y, char, termbox.ColorBlue, termbox.ColorBlack)
+			termbox.SetCell(x, y, char, fg, bg)
 		}
 	}
 }

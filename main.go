@@ -3,46 +3,9 @@ package main
 import (
 	"eugor/dungeon"
 	"eugor/logger"
+	"eugor/sprites"
 	"github.com/nsf/termbox-go"
 )
-
-type Character struct {
-	x int
-	y int
-}
-
-func (c Character) draw() {
-	termbox.SetCell(c.x, c.y, '@', termbox.ColorMagenta, termbox.ColorBlack)
-}
-
-func (c Character) move(k termbox.Key) Character {
-	switch {
-	case k == termbox.KeyArrowUp:
-		c.y -= 1
-	case k == termbox.KeyArrowDown:
-		c.y += 1
-	case k == termbox.KeyArrowLeft:
-		c.x -= 1
-	case k == termbox.KeyArrowRight:
-		c.x += 1
-	}
-	return c
-}
-
-func (c Character) isMovementEvent(e termbox.Event) bool {
-	validEvents := []termbox.Key{
-		termbox.KeyArrowUp,
-		termbox.KeyArrowDown,
-		termbox.KeyArrowLeft,
-		termbox.KeyArrowRight,
-	}
-	for _, key := range validEvents {
-		if e.Key == key {
-			return true
-		}
-	}
-	return false
-}
 
 func main() {
 	running := true
@@ -52,23 +15,29 @@ func main() {
 	}
 	defer termbox.Close()
 
-	char := Character{x: 5, y: 5}
+	char := sprites.Character{X: 5, Y: 5, Color: termbox.ColorMagenta}
 	logger := logger.Logger{Render: false}
 	dungeon := dungeon.NewMap()
 
 	for running {
+		if dungeon.IsWithinBounds(char) {
+			char.Color = termbox.ColorYellow
+		} else {
+			char.Color = termbox.ColorRed
+		}
 		termbox.Clear(termbox.ColorGreen, termbox.ColorBlack)
 		dungeon.Draw()
 		logger.Draw()
-		char.draw()
+		char.Draw()
 		termbox.Flush()
 		event := termbox.PollEvent()
 		logger = logger.Append(event)
 		switch {
 		case event.Key == termbox.KeyEsc:
 			running = false
-		case char.isMovementEvent(event):
-			char = char.move(event.Key)
+		case char.IsMovementEvent(event):
+			char = char.Move(event.Key)
+			// dungeon = dungeon.Move(event.Key)
 		case event.Ch == '`':
 			logger = logger.ToggleRender()
 		default:

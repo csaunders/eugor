@@ -8,14 +8,15 @@ import (
 type Room struct {
 	x, y, w, h int
 	doors      map[Direction]Structure
+	Color      termbox.Attribute
 }
 
 func NewRoom(x, y, w, h int) Room {
-	return Room{x: x, y: y, w: w, h: h, doors: make(map[Direction]Structure)}
+	return Room{x: x, y: y, w: w, h: h, doors: make(map[Direction]Structure), Color: termbox.ColorRed}
 }
 
 func (r Room) Draw(x, y int) {
-	termboxext.DrawSimpleBox(x+r.x, y+r.y, r.w, r.h, termbox.ColorRed, termbox.ColorBlack)
+	termboxext.DrawSimpleBox(x+r.x, y+r.y, r.w, r.h, r.Color, termbox.ColorBlack)
 	for direction, hallway := range r.doors {
 		offsetX, offsetY := r.DetermineOffset(x, y, direction)
 		hallway.Draw(offsetX, offsetY)
@@ -47,6 +48,22 @@ func (r Room) DetermineOffset(x, y int, direction Direction) (int, int) {
 		offY = y + r.y + (r.h / 2)
 	}
 	return offX, offY
+}
+
+func (r Room) IsWithinBounds(offsetX, offsetY, x, y int) bool {
+	actualX, actualY := r.x+offsetX, r.y+offsetY
+	withinX := x > actualX && x < actualX+r.w
+	withinY := y > actualY && y < actualY+r.h
+	if withinX && withinY {
+		return true
+	}
+	for direction, hall := range r.doors {
+		hallOffX, hallOffY := r.DetermineOffset(offsetX, offsetX, direction)
+		if hall.IsWithinBounds(hallOffX, hallOffY, x, y) {
+			return true
+		}
+	}
+	return false
 }
 
 func (r Room) Attach(direction Direction, hallway Hallway) Room {
