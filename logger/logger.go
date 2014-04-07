@@ -27,7 +27,11 @@ func (l Logger) Append(e termbox.Event) Logger {
 	case termbox.KeyArrowRight:
 		message = string('→')
 	}
-	event := Event{logLevel: Info, message: fmt.Sprintf("Received event %s", message)}
+	event := Event{LogLevel: Info, Message: fmt.Sprintf("Received event %s", message)}
+	return l.AppendEvent(event)
+}
+
+func (l Logger) AppendEvent(event Event) Logger {
 	l.events = append(l.events, nilEvent)
 	copy(l.events[1:], l.events[0:])
 	l.events[0] = event
@@ -69,7 +73,7 @@ func (l Logger) drawLogEvents() {
 		termboxext.DrawString(1, startingY, "There is nothing to log", termbox.ColorWhite, termbox.ColorBlack)
 	}
 	for index, event := range l.events {
-		termboxext.DrawString(1, startingY+index, event.message, termbox.ColorWhite, termbox.ColorBlack)
+		termboxext.DrawString(1, startingY+index, event.Message, termbox.ColorWhite, termbox.ColorBlack)
 	}
 }
 
@@ -83,6 +87,6 @@ const (
 )
 
 type Event struct {
-	logLevel LogLevel
-	message  string
+	LogLevel LogLevel
+	Message  string
 }
