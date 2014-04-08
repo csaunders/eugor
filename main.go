@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	running := true
+	fog, running := true, true
 	err := termbox.Init()
 	if err != nil {
 		panic(err)
@@ -38,7 +38,9 @@ func main() {
 		maze.Draw()
 		char.Draw()
 		lights := []lighting.Lightsource{char.Vision(), torch1, torch2}
-		dungeon.ApplyFog(maze, lights)
+		if fog {
+			dungeon.ApplyFog(maze, lights)
+		}
 		log.Draw()
 		termbox.Flush()
 		torch1 = torch1.Tick()
@@ -59,6 +61,8 @@ func main() {
 		case event.Ch == 'l':
 			event := logger.Event{LogLevel: logger.Info, Message: fmt.Sprintf("Character Position: (%d, %d)", char.X, char.Y)}
 			log = log.AppendEvent(event)
+		case event.Ch == 'f':
+			fog = !fog
 		case event.Ch == '`':
 			log = log.ToggleRender()
 		default:
