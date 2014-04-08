@@ -25,3 +25,7 @@ func (v Vision) Intensity() int {
 func (v Vision) Tick() Lightsource {
 	return v
 }
+
+func (v Vision) ToString() string {
+	return ""
+}

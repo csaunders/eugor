@@ -5,4 +5,5 @@ type Lightsource interface {
 	Y() int
 	Tick() Lightsource
 	Intensity() int
+	ToString() string
 }

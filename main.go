@@ -17,6 +17,9 @@ func main() {
 	}
 	defer termbox.Close()
 
+	torch1 := lighting.NewTorch(23, 26).Tick()
+	torch2 := lighting.NewTorch(47, 20).Tick()
+
 	char := sprites.Character{X: 8, Y: 12, Color: termbox.ColorMagenta}
 	log := logger.Logger{Render: false}
 	width, height := termbox.Size()
@@ -34,10 +37,12 @@ func main() {
 		termbox.Clear(termbox.ColorGreen, termbox.ColorBlack)
 		maze.Draw()
 		char.Draw()
-		lights := []lighting.Lightsource{char.Vision()}
+		lights := []lighting.Lightsource{char.Vision(), torch1, torch2}
 		dungeon.ApplyFog(maze, lights)
 		log.Draw()
 		termbox.Flush()
+		torch1 = torch1.Tick()
+		torch2 = torch2.Tick()
 		event := termbox.PollEvent()
 		log = log.Append(event)
 		switch {
@@ -59,5 +64,7 @@ func main() {
 		default:
 			termbox.SetCell(10, 10, event.Ch, termbox.ColorRed, termbox.ColorBlack)
 		}
+		e := logger.Event{LogLevel: logger.Info, Message: fmt.Sprintf("%s, %s", torch1.ToString(), torch2.ToString())}
+		log.AppendEvent(e)
 	}
 }
