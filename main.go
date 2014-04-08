@@ -2,6 +2,7 @@ package main
 
 import (
 	"eugor/dungeon"
+	"eugor/lighting"
 	"eugor/logger"
 	"eugor/sprites"
 	"fmt"
@@ -32,9 +33,10 @@ func main() {
 	for running {
 		termbox.Clear(termbox.ColorGreen, termbox.ColorBlack)
 		maze.Draw()
-		log.Draw()
 		char.Draw()
-		dungeon.ApplyFog(maze, char)
+		lights := []lighting.Lightsource{char.Vision()}
+		dungeon.ApplyFog(maze, lights)
+		log.Draw()
 		termbox.Flush()
 		event := termbox.PollEvent()
 		log = log.Append(event)

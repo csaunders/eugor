@@ -1,21 +1,30 @@
 package dungeon
 
 import (
-	"eugor/sprites"
+	"eugor/lighting"
 	"github.com/nsf/termbox-go"
 )
 
-func ApplyFog(d TileMap, c sprites.Character) {
-	visibility := c.Visibility()
+func ApplyFog(d TileMap, lights []lighting.Lightsource) {
 	for x := range d.Tiles {
 		for y := range d.Tiles[x] {
-			dX := x - c.X
-			dY := y - c.Y
-			if dX >= (-visibility*2) && dX <= (visibility*2) && dY >= -visibility && dY <= visibility {
+			if withinLight(x, y, lights) {
 				continue
 			} else {
 				termbox.SetCell(x, y, '.', termbox.ColorWhite, termbox.ColorBlack)
 			}
 		}
 	}
+}
+
+func withinLight(x, y int, lights []lighting.Lightsource) bool {
+	for _, light := range lights {
+		dX := x - light.X()
+		dY := y - light.Y()
+		visibility := light.Intensity()
+		if dX >= (-visibility*2) && dX <= (visibility*2) && dY >= -visibility && dY <= visibility {
+			return true
+		}
+	}
+	return false
 }
