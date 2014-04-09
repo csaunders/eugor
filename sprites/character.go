@@ -6,13 +6,19 @@ import (
 )
 
 type Character struct {
-	X     int
-	Y     int
-	Color termbox.Attribute
+	X            int
+	Y            int
+	DrawInCenter bool
+	Color        termbox.Attribute
 }
 
 func (c Character) Draw() {
-	termbox.SetCell(c.X, c.Y, '@', c.Color, termbox.ColorBlack)
+	x, y := c.X, c.Y
+	if c.DrawInCenter {
+		sx, sy := termbox.Size()
+		x, y = sx/2, sy/2
+	}
+	termbox.SetCell(x, y, '@', c.Color, termbox.ColorBlack)
 }
 
 func (c Character) PredictedMovement(k termbox.Key) (int, int) {

@@ -19,6 +19,8 @@ var Tiles = []Tile{
 	Tile{Name: "wall", Char: 'X', Fg: termbox.ColorRed, Bg: termbox.ColorBlack},
 	Tile{Name: "door", Char: 'D', Interactable: true, TransformsTo: "opendoor", Fg: termbox.ColorYellow, Bg: termbox.ColorBlack},
 	Tile{Name: "opendoor", Char: '.', Interactable: true, Walkable: true, TransformsTo: "door", Fg: termbox.ColorYellow, Bg: termbox.ColorBlack},
+	Tile{Name: "greengrass", Char: '⁙', Walkable: true, Fg: termbox.ColorGreen, Bg: termbox.ColorBlack},
+	Tile{Name: "bluegrass", Char: '⁙', Walkable: true, Fg: termbox.ColorBlue, Bg: termbox.ColorBlack},
 }
 
 func FindTile(name string) uint16 {
@@ -31,9 +33,11 @@ func FindTile(name string) uint16 {
 }
 
 type TileMap struct {
-	Tiles [][]uint16
-	ViewX int
-	ViewY int
+	Width  int
+	Height int
+	Tiles  [][]uint16
+	ViewX  int
+	ViewY  int
 }
 
 func NewTileMap(width, height int) TileMap {
@@ -41,16 +45,51 @@ func NewTileMap(width, height int) TileMap {
 	for i := range tiles {
 		tiles[i] = make([]uint16, height)
 	}
-	tileMap := TileMap{Tiles: tiles, ViewX: 0, ViewY: 0}
+	tileMap := TileMap{Width: width, Height: height, Tiles: tiles, ViewX: 0, ViewY: 0}
 	return tileMap
 }
 
+func (t TileMap) AdjustCamera(x, y int) TileMap {
+	mapSize := MakePoint(t.Width, t.Height)
+	size := MakePoint(termbox.Size())
+	halfSize := MakePoint(size.X/2, size.Y/2)
+	position := MakePoint(x, y)
+	var delta Point
+	if position.LessThan(halfSize) {
+		delta = MakePoint(0, 0)
+	} else if position.GreaterThan(mapSize.Minus(halfSize)) {
+		delta = mapSize.Minus(size)
+	} else {
+		delta = position.Minus(halfSize)
+	}
+	t.ViewX = delta.X
+	t.ViewY = delta.Y
+	return t
+}
+
+func (t TileMap) IsOffset() bool {
+	return t.ViewX != 0 && t.ViewY != 0
+}
+
 func (t TileMap) Draw() {
-	for x := range t.Tiles {
-		for y := range t.Tiles[x] {
-			value := t.Tiles[x][y]
-			tile := Tiles[value]
-			termbox.SetCell(x, y, tile.Char, tile.Fg, tile.Bg)
+	width, height := termbox.Size()
+	for x := 0; x < width; x++ {
+		for y := 0; y < height; y++ {
+			pointX, pointY := x+t.ViewX, y+t.ViewY
+			if t.WithinRange(pointX, pointY) {
+				value := t.Tiles[x][y]
+				tile := Tiles[value]
+				termbox.SetCell(x, y, tile.Char, tile.Fg, tile.Bg)
+			} else {
+				var color termbox.Attribute
+				if y%2 == 0 {
+					color = termbox.ColorRed
+				} else {
+					color = termbox.ColorYellow
+				}
+				termbox.SetCell(x, y, '█', color, termbox.ColorBlack)
+			}
+
 		}
 	}
 }
@@ -65,8 +104,24 @@ func (t TileMap) fill(x, y, width, height int, value uint16) TileMap {
 }
 
 func (t TileMap) fetchTile(x, y int) Tile {
-	index := t.Tiles[x][y]
-	return Tiles[index]
+	var tile Tile
+	if t.WithinRange(x, y) {
+		index := t.Tiles[x][y]
+		tile = Tiles[index]
+	} else {
+		tile = Tiles[FindTile("wall")]
+	}
+	return tile
+}
+
+func (t TileMap) WithinRange(x, y int) (within bool) {
+	within = true
+	if x < 0 || y < 0 {
+		within = false
+	} else if x >= len(t.Tiles) || y >= len(t.Tiles[x]) {
+		within = false
+	}
+	return
 }
 
 func (t TileMap) CanMoveTo(x, y int) bool {
