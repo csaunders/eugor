@@ -14,7 +14,7 @@ func (p Point) LessThan(other Point) bool {
 }
 
 func (p Point) GreaterThan(other Point) bool {
-	return !p.LessThan(other)
+	return p.X > other.X && p.Y > other.Y
 }
 
 func (p Point) Minus(other Point) Point {

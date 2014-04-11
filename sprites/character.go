@@ -6,14 +6,30 @@ import (
 )
 
 type Character struct {
-	X            int
-	Y            int
+	x            int
+	y            int
 	DrawInCenter bool
 	Color        termbox.Attribute
 }
 
+func MakeCharacter(x, y int, color termbox.Attribute) Character {
+	return Character{x: x, y: y, Color: color}
+}
+
+func (c Character) DrawProjection(screenX, screenY int, positionX, positionY int) {
+	termbox.SetCell(screenX, screenY, '@', c.Color, termbox.ColorBlack)
+}
+
+func (c Character) X() int {
+	return c.x
+}
+
+func (c Character) Y() int {
+	return c.y
+}
+
 func (c Character) Draw() {
-	x, y := c.X, c.Y
+	x, y := c.x, c.y
 	if c.DrawInCenter {
 		sx, sy := termbox.Size()
 		x, y = sx/2, sy/2
@@ -22,7 +38,7 @@ func (c Character) Draw() {
 }
 
 func (c Character) PredictedMovement(k termbox.Key) (int, int) {
-	x, y := c.X, c.Y
+	x, y := c.x, c.y
 	switch {
 	case k == termbox.KeyArrowUp:
 		y -= 1
@@ -37,12 +53,12 @@ func (c Character) PredictedMovement(k termbox.Key) (int, int) {
 }
 
 func (c Character) Move(k termbox.Key) Character {
-	c.X, c.Y = c.PredictedMovement(k)
+	c.x, c.y = c.PredictedMovement(k)
 	return c
 }
 
 func (c Character) Vision() lighting.Lightsource {
-	return lighting.NewVision(c.X, c.Y, 3)
+	return lighting.NewVision(c.x, c.y, 3)
 }
 
 func (c Character) IsMovementEvent(e termbox.Event) bool {

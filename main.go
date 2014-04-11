@@ -1,6 +1,7 @@
 package main
 
 import (
+	"eugor/camera"
 	"eugor/dungeon"
 	"eugor/lighting"
 	"eugor/logger"
@@ -20,7 +21,7 @@ func main() {
 	torch1 := lighting.NewTorch(23, 26).Tick()
 	torch2 := lighting.NewTorch(47, 20).Tick()
 
-	char := sprites.Character{X: 8, Y: 12, Color: termbox.ColorMagenta}
+	char := sprites.MakeCharacter(8, 12, termbox.ColorMagenta)
 	log := logger.Logger{Render: false}
 	// width, height := termbox.Size()
 	maze := dungeon.LoadTilemap("./empty.tlm")
@@ -36,10 +37,11 @@ func main() {
 
 	for running {
 		termbox.Clear(termbox.ColorGreen, termbox.ColorBlack)
-		maze = maze.AdjustCamera(char.X, char.Y)
-		char.DrawInCenter = maze.IsOffset()
-		maze.Draw()
-		char.Draw()
+		// maze = maze.AdjustCamera(char.X(), char.Y())
+		// char.DrawInCenter = maze.IsOffset()
+		//maze.Draw()
+		//char.Draw()
+		characterFocus, dungeonStartPoint, meta := camera.CameraDraw(maze, char)
 		lights := []lighting.Lightsource{char.Vision(), torch1, torch2}
 		if fog {
 			dungeon.ApplyFog(maze, lights)
@@ -49,7 +51,6 @@ func main() {
 		torch1 = torch1.Tick()
 		torch2 = torch2.Tick()
 		event := termbox.PollEvent()
-		log = log.Append(event)
 		switch {
 		case event.Key == termbox.KeyEsc:
 			running = false
@@ -62,16 +63,21 @@ func main() {
 			}
 			// maze = maze.Move(event.Key)
 		case event.Ch == 'l':
-			event := logger.Event{LogLevel: logger.Info, Message: fmt.Sprintf("Character Position: (%d, %d)", char.X, char.Y)}
+			event := logger.Event{LogLevel: logger.Info, Message: fmt.Sprintf("Character Position: (%d, %d)", char.X(), char.Y())}
 			log = log.AppendEvent(event)
 		case event.Ch == 'f':
 			fog = !fog
+		case event.Ch == 's':
+			x, y := termbox.Size()
+			event := logger.Event{LogLevel: logger.Info, Message: fmt.Sprintf("Screen Size: (%d, %d)", x, y)}
+			log = log.AppendEvent(event)
+		case event.Ch == 'm':
+			event := logger.Event{LogLevel: logger.Info, Message: fmt.Sprintf("(%s)Character Draw Position: (%d, %d)\tDungeon Start Point: (%d, %d)", meta, characterFocus.X, characterFocus.Y, dungeonStartPoint.X, dungeonStartPoint.Y)}
+			log = log.AppendEvent(event)
 		case event.Ch == '`':
 			log = log.ToggleRender()
 		default:
 			termbox.SetCell(10, 10, event.Ch, termbox.ColorRed, termbox.ColorBlack)
 		}
-		e := logger.Event{LogLevel: logger.Info, Message: fmt.Sprintf("%s, %s", torch1.ToString(), torch2.ToString())}
-		log.AppendEvent(e)
 	}
 }

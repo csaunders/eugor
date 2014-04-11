@@ -71,6 +71,14 @@ func (t TileMap) IsOffset() bool {
 	return t.ViewX != 0 && t.ViewY != 0
 }
 
+func (t TileMap) DrawProjection(screenX, screenY int, positionX, positionY int) {
+	if t.WithinRange(positionX, positionY) {
+		value := t.Tiles[positionX][positionY]
+		tile := Tiles[value]
+		termbox.SetCell(screenX, screenY, tile.Char, tile.Fg, tile.Bg)
+	}
+}
+
 func (t TileMap) Draw() {
 	width, height := termbox.Size()
 	for x := 0; x < width; x++ {
