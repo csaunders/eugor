@@ -17,6 +17,10 @@ func (p Point) GreaterThan(other Point) bool {
 	return p.X > other.X && p.Y > other.Y
 }
 
+func (p Point) Plus(other Point) Point {
+	return MakePoint(p.X+other.X, p.Y+other.Y)
+}
+
 func (p Point) Minus(other Point) Point {
 	return MakePoint(p.X-other.X, p.Y-other.Y)
 }

@@ -23,7 +23,7 @@ func CameraDraw(field dungeon.TileMap, focus Drawable) (focusDrawPoint, fieldSta
 		fieldStartPoint = dungeon.MakePoint(0, 0)
 	} else if position.GreaterThan(endField.Minus(screenMid)) {
 		meta = "Greater than field size"
-		focusDrawPoint = position.Minus(endField)
+		focusDrawPoint = screenEnd.Plus(position.Minus(endField))
 		fieldStartPoint = endField.Minus(screenEnd)
 	} else {
 		meta = "Somewhere in between"
@@ -38,9 +38,13 @@ func CameraDraw(field dungeon.TileMap, focus Drawable) (focusDrawPoint, fieldSta
 	}
 	if fieldStartPoint.X < 0 {
 		fieldStartPoint.X = 0
+	} else if fieldStartPoint.X+w > endField.X {
+		fieldStartPoint.X = endField.X - w
 	}
 	if fieldStartPoint.Y < 0 {
 		fieldStartPoint.Y = 0
+	} else if fieldStartPoint.Y+h > endField.Y {
+		fieldStartPoint.Y = endField.Y - h
 	}
 	for x := 0; x < screenEnd.X; x++ {
 		for y := 0; y < screenEnd.Y; y++ {
