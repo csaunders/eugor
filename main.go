@@ -18,22 +18,47 @@ func main() {
 	}
 	defer termbox.Close()
 
+	closeDoor := sprites.Interactable{
+		Name: "Close Door",
+		Test: func(p dungeon.Point, d dungeon.TileMap) bool {
+			tile := d.FetchTile(p.X, p.Y)
+			return d.CanInteractWith(p.X, p.Y) && tile.Name == "opendoor"
+		},
+		Action: func(p dungeon.Point, d dungeon.TileMap) dungeon.TileMap {
+			return d.Interact(p.X, p.Y)
+		},
+	}
+	openDoor := sprites.Interactable{
+		Name: "Open Door",
+		Test: func(p dungeon.Point, d dungeon.TileMap) bool {
+			tile := d.FetchTile(p.X, p.Y)
+			return d.CanInteractWith(p.X, p.Y) && tile.Name == "door"
+		},
+		Action: func(p dungeon.Point, d dungeon.TileMap) dungeon.TileMap {
+			return d.Interact(p.X, p.Y)
+		},
+	}
+
 	torch1 := lighting.NewTorch(23, 26).Tick()
 	torch2 := lighting.NewTorch(47, 20).Tick()
 
 	char := sprites.MakeCharacter(8, 12, termbox.ColorMagenta)
 	log := logger.Logger{Render: false}
-	// width, height := termbox.Size()
-	maze := dungeon.LoadTilemap("./empty.tlm")
-	// maze := dungeon.NewTileMap(width, height)
-	// maze = maze.AddRoom(5, 10, 10, 15)
-	// maze = maze.AddRoom(20, 20, 20, 10)
-	// maze = maze.AddRoom(14, 21, 7, 3)
-	// maze = maze.AddRoom(41, 0, width-41, height)
-	// maze = maze.AddDoor(39, 26)
-	// maze = maze.AddDoor(41, 26)
-	// maze = maze.AddDoor(14, 22)
-	// maze = maze.AddDoor(20, 22)
+	width, height := termbox.Size()
+	// maze := dungeon.LoadTilemap("./empty.tlm")
+	maze := dungeon.NewTileMap(width, height)
+	maze = maze.AddRoom(5, 10, 10, 15)
+	maze = maze.AddRoom(20, 20, 20, 10)
+	maze = maze.AddRoom(14, 21, 7, 3)
+	maze = maze.AddRoom(41, 0, width-41, height)
+	maze = maze.AddDoor(39, 26)
+	maze = maze.AddDoor(41, 26)
+	maze = maze.AddDoor(14, 22)
+	maze = maze.AddDoor(20, 22)
+
+	mapContext := sprites.MapContext{TileMap: maze}
+	mapContext = mapContext.AddInteraction(closeDoor)
+	mapContext = mapContext.AddInteraction(openDoor)
 
 	for running {
 		termbox.Clear(termbox.ColorGreen, termbox.ColorBlack)
@@ -47,6 +72,7 @@ func main() {
 			dungeon.ApplyFog(maze, lights)
 		}
 		log.Draw()
+		mapContext.Draw()
 		termbox.Flush()
 		torch1 = torch1.Tick()
 		torch2 = torch2.Tick()
@@ -62,6 +88,8 @@ func main() {
 				maze = maze.Interact(x, y)
 			}
 			// maze = maze.Move(event.Key)
+		case event.Ch == 'i':
+			mapContext = mapContext.Toggle(dungeon.MakePoint(char.X(), char.Y()))
 		case event.Ch == 'l':
 			event := logger.Event{LogLevel: logger.Info, Message: fmt.Sprintf("Character Position: (%d, %d)", char.X(), char.Y())}
 			log = log.AppendEvent(event)

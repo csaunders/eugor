@@ -9,6 +9,25 @@ func MakePoint(x, y int) Point {
 	return Point{X: x, Y: y}
 }
 
+func MakePoints(p Point, dirs []string) []Point {
+	points := make([]Point, len(dirs))
+	var newPoint Point
+	for i, name := range dirs {
+		switch name {
+		case "up":
+			newPoint = MakePoint(p.X, p.Y+1)
+		case "down":
+			newPoint = MakePoint(p.X, p.Y-1)
+		case "left":
+			newPoint = MakePoint(p.X-1, p.Y)
+		case "right":
+			newPoint = MakePoint(p.X+1, p.Y)
+		}
+		points[i] = newPoint
+	}
+	return points
+}
+
 func (p Point) LessThan(other Point) bool {
 	return p.X < other.X && p.Y < other.Y
 }

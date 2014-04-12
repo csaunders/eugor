@@ -111,7 +111,7 @@ func (t TileMap) fill(x, y, width, height int, value uint16) TileMap {
 	return t
 }
 
-func (t TileMap) fetchTile(x, y int) Tile {
+func (t TileMap) FetchTile(x, y int) Tile {
 	var tile Tile
 	if t.WithinRange(x, y) {
 		index := t.Tiles[x][y]
@@ -133,15 +133,15 @@ func (t TileMap) WithinRange(x, y int) (within bool) {
 }
 
 func (t TileMap) CanMoveTo(x, y int) bool {
-	return t.fetchTile(x, y).Walkable
+	return t.FetchTile(x, y).Walkable
 }
 
 func (t TileMap) CanInteractWith(x, y int) bool {
-	return t.fetchTile(x, y).Interactable
+	return t.FetchTile(x, y).Interactable
 }
 
 func (t TileMap) Interact(x, y int) TileMap {
-	tile := t.fetchTile(x, y)
+	tile := t.FetchTile(x, y)
 	replacement := FindTile(tile.TransformsTo)
 	t.Tiles[x][y] = replacement
 	return t
