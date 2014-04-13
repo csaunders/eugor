@@ -5,6 +5,7 @@ import (
 	"eugor/dungeon"
 	"eugor/lighting"
 	"eugor/logger"
+	"eugor/particles"
 	"eugor/sprites"
 	"fmt"
 	"github.com/nsf/termbox-go"
@@ -42,6 +43,8 @@ func main() {
 	torch1 := lighting.NewTorch(23, 26).Tick()
 	torch2 := lighting.NewTorch(47, 20).Tick()
 
+	particle := particles.MakeParticle(dungeon.MakePoint(30, 10))
+
 	char := sprites.MakeCharacter(8, 12, termbox.ColorMagenta)
 	log := logger.Logger{Render: false}
 	width, height := termbox.Size()
@@ -68,6 +71,8 @@ func main() {
 		//char.Draw()
 		characterFocus, dungeonStartPoint, meta := camera.CameraDraw(maze, char)
 		lights := []lighting.Lightsource{char.Vision(), torch1, torch2}
+		particle = particle.Update()
+		particle.Draw()
 		if fog {
 			dungeon.ApplyFog(maze, lights)
 		}
