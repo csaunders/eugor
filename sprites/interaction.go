@@ -34,6 +34,30 @@ func (m MapContext) Toggle(point dungeon.Point) MapContext {
 	return m
 }
 
+func (m MapContext) IsFocused() bool {
+	return m.render
+}
+
+func (m MapContext) HandleInput(point dungeon.Point, event termbox.Event) MapContext {
+	switch event.Key {
+	case termbox.KeyArrowUp:
+		m.cursor = (m.cursor - 1) % len(m.interactions)
+	case termbox.KeyArrowDown:
+		m.cursor = (m.cursor + 1) % len(m.interactions)
+	case termbox.KeyEnter:
+		actions := m.interactables(point)
+		i := 0
+		for p, _ := range actions {
+			if m.cursor == i {
+				m.TileMap = m.PerformInteraction(p)
+				break
+			}
+		}
+		m = m.Toggle(point)
+	}
+	return m
+}
+
 func (m MapContext) Draw() {
 	if !m.render {
 		return
@@ -43,7 +67,10 @@ func (m MapContext) Draw() {
 	termboxext.DrawSimpleBox(0, 0, 50, 20, termbox.ColorGreen, termbox.ColorBlack)
 	y := 1
 	for name, _ := range m.currentInteractions {
-		termboxext.DrawString(1, y, name, termbox.ColorGreen, termbox.ColorBlack)
+		if m.cursor+1 == y {
+			termboxext.DrawString(1, y, "*", termbox.ColorMagenta, termbox.ColorBlack)
+		}
+		termboxext.DrawString(2, y, name, termbox.ColorGreen, termbox.ColorBlack)
 		y++
 	}
 }

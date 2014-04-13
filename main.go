@@ -77,9 +77,14 @@ func main() {
 		torch1 = torch1.Tick()
 		torch2 = torch2.Tick()
 		event := termbox.PollEvent()
+		charPoint := dungeon.MakePoint(char.X(), char.Y())
 		switch {
 		case event.Key == termbox.KeyEsc:
 			running = false
+		case event.Ch == 'i':
+			mapContext = mapContext.Toggle(charPoint)
+		case mapContext.IsFocused():
+			mapContext = mapContext.HandleInput(charPoint, event)
 		case char.IsMovementEvent(event):
 			x, y := char.PredictedMovement(event.Key)
 			if maze.CanMoveTo(x, y) {
@@ -88,8 +93,6 @@ func main() {
 				maze = maze.Interact(x, y)
 			}
 			// maze = maze.Move(event.Key)
-		case event.Ch == 'i':
-			mapContext = mapContext.Toggle(dungeon.MakePoint(char.X(), char.Y()))
 		case event.Ch == 'l':
 			event := logger.Event{LogLevel: logger.Info, Message: fmt.Sprintf("Character Position: (%d, %d)", char.X(), char.Y())}
 			log = log.AppendEvent(event)
