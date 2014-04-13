@@ -3,6 +3,7 @@ package sprites
 import (
 	"eugor/dungeon"
 	"eugor/termboxext"
+	"fmt"
 	"github.com/nsf/termbox-go"
 )
 
@@ -45,13 +46,13 @@ func (m MapContext) HandleInput(point dungeon.Point, event termbox.Event) MapCon
 	case termbox.KeyArrowDown:
 		m.cursor = (m.cursor + 1) % len(m.interactions)
 	case termbox.KeyEnter:
-		actions := m.interactables(point)
 		i := 0
-		for p, _ := range actions {
+		for _, p := range m.currentInteractions {
 			if m.cursor == i {
 				m.TileMap = m.PerformInteraction(p)
 				break
 			}
+			i++
 		}
 		m = m.Toggle(point)
 	}
@@ -79,7 +80,8 @@ func (m MapContext) Interactions(point dungeon.Point) map[string]dungeon.Point {
 	availableActions := m.interactables(point)
 	result := make(map[string]dungeon.Point)
 	for p, interaction := range availableActions {
-		result[interaction.Name] = p
+		name := buildNameFromPoint(point, p, interaction.Name)
+		result[name] = p
 	}
 	return result
 }
@@ -105,4 +107,21 @@ func (m MapContext) interactables(point dungeon.Point) map[dungeon.Point]Interac
 		}
 	}
 	return result
+}
+
+func buildNameFromPoint(source, dest dungeon.Point, name string) string {
+	var destination string
+	switch dungeon.DetermineDirection(source, dest) {
+	case dungeon.North:
+		destination = "North"
+	case dungeon.South:
+		destination = "South"
+	case dungeon.East:
+		destination = "East"
+	case dungeon.West:
+		destination = "West"
+	default:
+		destination = "¯\\(°_o)/¯"
+	}
+	return fmt.Sprintf("%s - %s", name, destination)
 }

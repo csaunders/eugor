@@ -1,5 +1,14 @@
 package dungeon
 
+type Direction string
+
+const (
+	North Direction = "north"
+	South           = "south"
+	East            = "east"
+	West            = "west"
+)
+
 type Point struct {
 	X int
 	Y int
@@ -26,6 +35,23 @@ func MakePoints(p Point, dirs []string) []Point {
 		points[i] = newPoint
 	}
 	return points
+}
+
+func DetermineDirection(source, dest Point) (dir Direction) {
+	if source.Y == dest.Y {
+		if source.X < dest.X {
+			dir = East
+		} else {
+			dir = West
+		}
+	} else {
+		if source.Y < dest.Y {
+			dir = North
+		} else {
+			dir = South
+		}
+	}
+	return dir
 }
 
 func (p Point) LessThan(other Point) bool {
