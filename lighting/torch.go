@@ -1,11 +1,13 @@
 package lighting
 
 import (
+	"eugor/algebra"
+	"eugor/particles"
 	"fmt"
-	"math/rand"
 )
 
 type Torch struct {
+	emmiter       particles.Emmiter
 	breathIn      bool
 	baseIntensity int
 	x             int
@@ -13,7 +15,9 @@ type Torch struct {
 }
 
 func NewTorch(x, y int) Torch {
-	return Torch{x: x, y: y, baseIntensity: 2, breathIn: false}
+	point := algebra.MakePoint(x, y)
+	emmiter := particles.MakeEmmiter(point)
+	return Torch{emmiter: emmiter, x: x, y: y}
 }
 
 func (t Torch) X() int {
@@ -25,18 +29,26 @@ func (t Torch) Y() int {
 }
 
 func (t Torch) Intensity() (intensity int) {
-	if t.breathIn {
-		intensity = t.baseIntensity
-	} else {
-		intensity = t.baseIntensity + 1
-	}
+	intensity = 0
 	return
 }
 
-func (t Torch) Tick() Lightsource {
-	if rand.Int63n(100) <= 10 {
-		t.breathIn = !t.breathIn
+func (t Torch) IsLighting(x, y int) bool {
+	for _, particle := range t.emmiter.Particles {
+		loc := particle.Location
+		if loc.X == x && loc.Y == y {
+			return true
+		}
 	}
+	return false
+}
+
+func (t Torch) Tick() Lightsource {
+	t.emmiter = t.emmiter.Update()
+	t.emmiter = t.emmiter.AddParticle(particles.MakeParticle(t.emmiter.Origin))
+	t.emmiter = t.emmiter.AddParticle(particles.MakeParticle(t.emmiter.Origin))
+	t.emmiter = t.emmiter.AddParticle(particles.MakeParticle(t.emmiter.Origin))
+	t.emmiter = t.emmiter.AddParticle(particles.MakeParticle(t.emmiter.Origin))
 	return t
 }
 

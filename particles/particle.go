@@ -1,19 +1,19 @@
 package particles
 
 import (
-	"eugor/dungeon"
+	"eugor/algebra"
 	"github.com/nsf/termbox-go"
 	"math/rand"
 	"time"
 )
 
 type Particle struct {
-	Location dungeon.Point
-	velocity dungeon.Point
+	Location algebra.Point
+	velocity algebra.Point
 	lifespan float64
 }
 
-func MakeParticle(position dungeon.Point) Particle {
+func MakeParticle(position algebra.Point) Particle {
 	prng := rand.New(rand.NewSource(time.Now().UnixNano()))
 	vx := prng.Intn(2)
 	vy := prng.Intn(2)
@@ -26,7 +26,7 @@ func MakeParticle(position dungeon.Point) Particle {
 
 	return Particle{
 		Location: position,
-		velocity: dungeon.MakePoint(vx, vy),
+		velocity: algebra.MakePoint(vx, vy),
 		lifespan: 5,
 	}
 }

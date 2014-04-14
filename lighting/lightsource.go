@@ -6,4 +6,5 @@ type Lightsource interface {
 	Tick() Lightsource
 	Intensity() int
 	ToString() string
+	IsLighting(x, y int) bool
 }

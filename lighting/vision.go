@@ -22,6 +22,10 @@ func (v Vision) Intensity() int {
 	return v.intensity
 }
 
+func (v Vision) IsLighting(x, y int) bool {
+	return false
+}
+
 func (v Vision) Tick() Lightsource {
 	return v
 }

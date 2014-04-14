@@ -1,4 +1,4 @@
-package dungeon
+package algebra
 
 type Direction string
 

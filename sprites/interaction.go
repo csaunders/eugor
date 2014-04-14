@@ -1,6 +1,7 @@
 package sprites
 
 import (
+	"eugor/algebra"
 	"eugor/dungeon"
 	"eugor/termboxext"
 	"fmt"
@@ -8,8 +9,8 @@ import (
 )
 
 type Interactable struct {
-	Test   func(point dungeon.Point, tileMap dungeon.TileMap) bool
-	Action func(point dungeon.Point, tileMap dungeon.TileMap) dungeon.TileMap
+	Test   func(point algebra.Point, tileMap dungeon.TileMap) bool
+	Action func(point algebra.Point, tileMap dungeon.TileMap) dungeon.TileMap
 	Name   string
 }
 
@@ -17,7 +18,7 @@ type MapContext struct {
 	TileMap             dungeon.TileMap
 	render              bool
 	cursor              int
-	currentInteractions map[string]dungeon.Point
+	currentInteractions map[string]algebra.Point
 	interactions        []Interactable
 }
 
@@ -26,7 +27,7 @@ func (m MapContext) AddInteraction(i Interactable) MapContext {
 	return m
 }
 
-func (m MapContext) Toggle(point dungeon.Point) MapContext {
+func (m MapContext) Toggle(point algebra.Point) MapContext {
 	m.render = !m.render
 	m.cursor = 0
 	if m.render {
@@ -39,7 +40,7 @@ func (m MapContext) IsFocused() bool {
 	return m.render
 }
 
-func (m MapContext) HandleInput(point dungeon.Point, event termbox.Event) MapContext {
+func (m MapContext) HandleInput(point algebra.Point, event termbox.Event) MapContext {
 	switch event.Key {
 	case termbox.KeyArrowUp:
 		m.cursor = (m.cursor - 1) % len(m.interactions)
@@ -76,9 +77,9 @@ func (m MapContext) Draw() {
 	}
 }
 
-func (m MapContext) Interactions(point dungeon.Point) map[string]dungeon.Point {
+func (m MapContext) Interactions(point algebra.Point) map[string]algebra.Point {
 	availableActions := m.interactables(point)
-	result := make(map[string]dungeon.Point)
+	result := make(map[string]algebra.Point)
 	for p, interaction := range availableActions {
 		name := buildNameFromPoint(point, p, interaction.Name)
 		result[name] = p
@@ -86,7 +87,7 @@ func (m MapContext) Interactions(point dungeon.Point) map[string]dungeon.Point {
 	return result
 }
 
-func (m MapContext) PerformInteraction(point dungeon.Point) dungeon.TileMap {
+func (m MapContext) PerformInteraction(point algebra.Point) dungeon.TileMap {
 	for _, i := range m.interactions {
 		if i.Test(point, m.TileMap) {
 			m.TileMap = i.Action(point, m.TileMap)
@@ -96,9 +97,9 @@ func (m MapContext) PerformInteraction(point dungeon.Point) dungeon.TileMap {
 	return m.TileMap
 }
 
-func (m MapContext) interactables(point dungeon.Point) map[dungeon.Point]Interactable {
-	result := make(map[dungeon.Point]Interactable)
-	points := dungeon.MakePoints(point, []string{"up", "down", "left", "right"})
+func (m MapContext) interactables(point algebra.Point) map[algebra.Point]Interactable {
+	result := make(map[algebra.Point]Interactable)
+	points := algebra.MakePoints(point, []string{"up", "down", "left", "right"})
 	for _, interactable := range m.interactions {
 		for _, p := range points {
 			if interactable.Test(p, m.TileMap) {
@@ -109,16 +110,16 @@ func (m MapContext) interactables(point dungeon.Point) map[dungeon.Point]Interac
 	return result
 }
 
-func buildNameFromPoint(source, dest dungeon.Point, name string) string {
+func buildNameFromPoint(source, dest algebra.Point, name string) string {
 	var destination string
-	switch dungeon.DetermineDirection(source, dest) {
-	case dungeon.North:
+	switch algebra.DetermineDirection(source, dest) {
+	case algebra.North:
 		destination = "North"
-	case dungeon.South:
+	case algebra.South:
 		destination = "South"
-	case dungeon.East:
+	case algebra.East:
 		destination = "East"
-	case dungeon.West:
+	case algebra.West:
 		destination = "West"
 	default:
 		destination = "¯\\(°_o)/¯"

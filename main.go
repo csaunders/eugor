@@ -1,6 +1,7 @@
 package main
 
 import (
+	"eugor/algebra"
 	"eugor/camera"
 	"eugor/dungeon"
 	"eugor/lighting"
@@ -21,21 +22,21 @@ func main() {
 
 	closeDoor := sprites.Interactable{
 		Name: "Close Door",
-		Test: func(p dungeon.Point, d dungeon.TileMap) bool {
+		Test: func(p algebra.Point, d dungeon.TileMap) bool {
 			tile := d.FetchTile(p.X, p.Y)
 			return d.CanInteractWith(p.X, p.Y) && tile.Name == "opendoor"
 		},
-		Action: func(p dungeon.Point, d dungeon.TileMap) dungeon.TileMap {
+		Action: func(p algebra.Point, d dungeon.TileMap) dungeon.TileMap {
 			return d.Interact(p.X, p.Y)
 		},
 	}
 	openDoor := sprites.Interactable{
 		Name: "Open Door",
-		Test: func(p dungeon.Point, d dungeon.TileMap) bool {
+		Test: func(p algebra.Point, d dungeon.TileMap) bool {
 			tile := d.FetchTile(p.X, p.Y)
 			return d.CanInteractWith(p.X, p.Y) && tile.Name == "door"
 		},
-		Action: func(p dungeon.Point, d dungeon.TileMap) dungeon.TileMap {
+		Action: func(p algebra.Point, d dungeon.TileMap) dungeon.TileMap {
 			return d.Interact(p.X, p.Y)
 		},
 	}
@@ -43,7 +44,7 @@ func main() {
 	torch1 := lighting.NewTorch(23, 26).Tick()
 	torch2 := lighting.NewTorch(47, 20).Tick()
 
-	emmiter := particles.MakeEmmiter(dungeon.MakePoint(30, 10))
+	emmiter := particles.MakeEmmiter(algebra.MakePoint(30, 10))
 
 	char := sprites.MakeCharacter(8, 12, termbox.ColorMagenta)
 	log := logger.Logger{Render: false}
@@ -82,7 +83,7 @@ func main() {
 		torch1 = torch1.Tick()
 		torch2 = torch2.Tick()
 		event := termbox.PollEvent()
-		charPoint := dungeon.MakePoint(char.X(), char.Y())
+		charPoint := algebra.MakePoint(char.X(), char.Y())
 		switch {
 		case event.Key == termbox.KeyEsc:
 			running = false

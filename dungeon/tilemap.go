@@ -1,6 +1,7 @@
 package dungeon
 
 import (
+	"eugor/algebra"
 	"github.com/nsf/termbox-go"
 )
 
@@ -50,13 +51,13 @@ func NewTileMap(width, height int) TileMap {
 }
 
 func (t TileMap) AdjustCamera(x, y int) TileMap {
-	mapSize := MakePoint(t.Width, t.Height)
-	size := MakePoint(termbox.Size())
-	halfSize := MakePoint(size.X/2, size.Y/2)
-	position := MakePoint(x, y)
-	var delta Point
+	mapSize := algebra.MakePoint(t.Width, t.Height)
+	size := algebra.MakePoint(termbox.Size())
+	halfSize := algebra.MakePoint(size.X/2, size.Y/2)
+	position := algebra.MakePoint(x, y)
+	var delta algebra.Point
 	if position.LessThan(halfSize) {
-		delta = MakePoint(0, 0)
+		delta = algebra.MakePoint(0, 0)
 	} else if position.GreaterThan(mapSize.Minus(halfSize)) {
 		delta = mapSize.Minus(size)
 	} else {
