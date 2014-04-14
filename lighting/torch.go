@@ -16,7 +16,7 @@ type Torch struct {
 
 func NewTorch(x, y int) Torch {
 	point := algebra.MakePoint(x, y)
-	emmiter := particles.MakeEmmiter(point)
+	emmiter := particles.MakeEmmiter(point, 20)
 	return Torch{emmiter: emmiter, x: x, y: y}
 }
 
@@ -45,10 +45,6 @@ func (t Torch) IsLighting(x, y int) bool {
 
 func (t Torch) Tick() Lightsource {
 	t.emmiter = t.emmiter.Update()
-	t.emmiter = t.emmiter.AddParticle(particles.MakeParticle(t.emmiter.Origin))
-	t.emmiter = t.emmiter.AddParticle(particles.MakeParticle(t.emmiter.Origin))
-	t.emmiter = t.emmiter.AddParticle(particles.MakeParticle(t.emmiter.Origin))
-	t.emmiter = t.emmiter.AddParticle(particles.MakeParticle(t.emmiter.Origin))
 	return t
 }
 

@@ -44,7 +44,7 @@ func main() {
 	torch1 := lighting.NewTorch(23, 26).Tick()
 	torch2 := lighting.NewTorch(47, 20).Tick()
 
-	emmiter := particles.MakeEmmiter(algebra.MakePoint(30, 10))
+	emmiter := particles.MakeEmmiter(algebra.MakePoint(30, 10), 5)
 
 	char := sprites.MakeCharacter(8, 12, termbox.ColorMagenta)
 	log := logger.Logger{Render: false}

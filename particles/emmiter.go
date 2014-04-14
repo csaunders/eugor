@@ -7,17 +7,27 @@ import (
 type Emmiter struct {
 	Origin    algebra.Point
 	Particles []Particle
+	birthRate int
 }
 
-func MakeEmmiter(origin algebra.Point) Emmiter {
+func MakeEmmiter(origin algebra.Point, birthRate int) Emmiter {
 	return Emmiter{
 		Origin:    origin,
 		Particles: []Particle{},
+		birthRate: birthRate,
 	}
 }
 
 func (e Emmiter) AddParticle(p Particle) Emmiter {
 	e.Particles = append(e.Particles, p)
+	return e
+}
+
+func (e Emmiter) spawnMoreParticles() Emmiter {
+	for i := 0; i < e.birthRate; i++ {
+		newParticle := MakeParticle(e.Origin)
+		e.Particles = append(e.Particles, newParticle)
+	}
 	return e
 }
 
@@ -30,6 +40,7 @@ func (e Emmiter) Update() Emmiter {
 		}
 	}
 	e.Particles = remainingParticles
+	e = e.spawnMoreParticles()
 	return e
 }
 
