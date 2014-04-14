@@ -43,7 +43,7 @@ func main() {
 	torch1 := lighting.NewTorch(23, 26).Tick()
 	torch2 := lighting.NewTorch(47, 20).Tick()
 
-	particle := particles.MakeParticle(dungeon.MakePoint(30, 10))
+	emmiter := particles.MakeEmmiter(dungeon.MakePoint(30, 10))
 
 	char := sprites.MakeCharacter(8, 12, termbox.ColorMagenta)
 	log := logger.Logger{Render: false}
@@ -71,8 +71,8 @@ func main() {
 		//char.Draw()
 		characterFocus, dungeonStartPoint, meta := camera.CameraDraw(maze, char)
 		lights := []lighting.Lightsource{char.Vision(), torch1, torch2}
-		particle = particle.Update()
-		particle.Draw()
+		emmiter = emmiter.Update()
+		emmiter.Draw()
 		if fog {
 			dungeon.ApplyFog(maze, lights)
 		}
