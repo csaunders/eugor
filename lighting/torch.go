@@ -48,6 +48,10 @@ func (t Torch) Tick() Lightsource {
 	return t
 }
 
+func (t Torch) Projection() Projection {
+	return Relative
+}
+
 func (t Torch) ToString() string {
 	return fmt.Sprintf("(x: %d, y: %d, breathe: %v, intensity: %d)", t.x, t.y, t.breathIn, t.Intensity())
 }

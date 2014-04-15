@@ -1,5 +1,9 @@
 package lighting
 
+import (
+	"math"
+)
+
 type Vision struct {
 	intensity int
 	x         int
@@ -23,11 +27,15 @@ func (v Vision) Intensity() int {
 }
 
 func (v Vision) IsLighting(x, y int) bool {
-	return false
+	return math.Abs(float64(v.x-x)) <= float64(v.intensity) && math.Abs(float64(v.y-y)) <= float64(v.intensity)
 }
 
 func (v Vision) Tick() Lightsource {
 	return v
+}
+
+func (v Vision) Projection() Projection {
+	return Static
 }
 
 func (v Vision) ToString() string {

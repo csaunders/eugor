@@ -48,17 +48,17 @@ func main() {
 
 	char := sprites.MakeCharacter(8, 12, termbox.ColorMagenta)
 	log := logger.Logger{Render: false}
-	width, height := termbox.Size()
-	// maze := dungeon.LoadTilemap("./empty.tlm")
-	maze := dungeon.NewTileMap(width, height)
-	maze = maze.AddRoom(5, 10, 10, 15)
-	maze = maze.AddRoom(20, 20, 20, 10)
-	maze = maze.AddRoom(14, 21, 7, 3)
-	maze = maze.AddRoom(41, 0, width-41, height)
-	maze = maze.AddDoor(39, 26)
-	maze = maze.AddDoor(41, 26)
-	maze = maze.AddDoor(14, 22)
-	maze = maze.AddDoor(20, 22)
+	// width, height := termbox.Size()
+	maze := dungeon.LoadTilemap("./empty.tlm")
+	// maze := dungeon.NewTileMap(width, height)
+	// maze = maze.AddRoom(5, 10, 10, 15)
+	// maze = maze.AddRoom(20, 20, 20, 10)
+	// maze = maze.AddRoom(14, 21, 7, 3)
+	// maze = maze.AddRoom(41, 0, width-41, height)
+	// maze = maze.AddDoor(39, 26)
+	// maze = maze.AddDoor(41, 26)
+	// maze = maze.AddDoor(14, 22)
+	// maze = maze.AddDoor(20, 22)
 
 	mapContext := sprites.MapContext{TileMap: maze}
 	mapContext = mapContext.AddInteraction(closeDoor)
@@ -71,11 +71,11 @@ func main() {
 		//maze.Draw()
 		//char.Draw()
 		characterFocus, dungeonStartPoint, meta := camera.CameraDraw(maze, char)
-		lights := []lighting.Lightsource{char.Vision(), torch1, torch2}
+		lights := []lighting.Lightsource{char.Vision(characterFocus), torch1, torch2}
 		emmiter = emmiter.Update()
 		emmiter.Draw()
 		if fog {
-			dungeon.ApplyFog(maze, lights)
+			dungeon.ApplyFog(dungeonStartPoint, maze, lights)
 		}
 		log.Draw()
 		mapContext.Draw()

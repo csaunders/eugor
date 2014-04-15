@@ -1,14 +1,16 @@
 package dungeon
 
 import (
+	"eugor/algebra"
 	"eugor/lighting"
 	"github.com/nsf/termbox-go"
 )
 
-func ApplyFog(d TileMap, lights []lighting.Lightsource) {
-	for x := range d.Tiles {
-		for y := range d.Tiles[x] {
-			if withinLight(x, y, lights) {
+func ApplyFog(p algebra.Point, d TileMap, lights []lighting.Lightsource) {
+	w, h := termbox.Size()
+	for x := 0; x < w; x++ {
+		for y := 0; y < h; y++ {
+			if withinLight(x, y, p.X, p.Y, lights) {
 				continue
 			} else {
 				termbox.SetCell(x, y, '.', termbox.ColorWhite, termbox.ColorBlack)
@@ -17,17 +19,17 @@ func ApplyFog(d TileMap, lights []lighting.Lightsource) {
 	}
 }
 
-func withinLight(x, y int, lights []lighting.Lightsource) bool {
+func withinLight(x, y, xOffset, yOffset int, lights []lighting.Lightsource) bool {
 	for _, light := range lights {
-		if light.IsLighting(x, y) {
+		actualX, actualY := x, y
+		if light.Projection() == lighting.Relative {
+			actualX += xOffset
+			actualY += yOffset
+		}
+
+		if light.IsLighting(actualX, actualY) {
 			return true
 		}
-		// dX := x - light.X()
-		// dY := y - light.Y()
-		// visibility := light.Intensity()
-		// if dX >= (-visibility*2) && dX <= (visibility*2) && dY >= -visibility && dY <= visibility {
-		// 	return true
-		// }
 	}
 	return false
 }

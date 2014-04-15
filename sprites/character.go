@@ -1,6 +1,7 @@
 package sprites
 
 import (
+	"eugor/algebra"
 	"eugor/lighting"
 	"github.com/nsf/termbox-go"
 )
@@ -57,8 +58,8 @@ func (c Character) Move(k termbox.Key) Character {
 	return c
 }
 
-func (c Character) Vision() lighting.Lightsource {
-	return lighting.NewVision(c.x, c.y, 3)
+func (c Character) Vision(p algebra.Point) lighting.Lightsource {
+	return lighting.NewVision(p.X, p.Y, 3)
 }
 
 func (c Character) IsMovementEvent(e termbox.Event) bool {
