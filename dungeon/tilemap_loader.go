@@ -2,10 +2,35 @@ package dungeon
 
 import (
 	"bufio"
+	"errors"
+	"eugor/algebra"
+	"eugor/lighting"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
 	"strings"
+)
+
+type MapData struct {
+	Maze        TileMap
+	PlayerStart algebra.Point
+	MazeLights  []lighting.Lightsource
+}
+
+type LayerInformation struct {
+	Type string
+	Data []string
+}
+
+type TileMapParserState int
+
+const (
+	Unknown TileMapParserState = iota
+	Header
+	Player
+	LightSources
+	Layer
 )
 
 func LoadTilemap(filename string) TileMap {
@@ -16,14 +41,64 @@ func LoadTilemap(filename string) TileMap {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	var lines []string
+	state := Unknown
+	data := MapData{}
 	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
+		var line string = ""
+		switch state {
+		case Header:
+			data.Maze, line = prepareMaze(scanner)
+		case Player:
+			data.PlayerStart, line = extractPlayerDetails(scanner)
+		case LightSources:
+			data.MazeLights, line = extractLightSources(scanner)
+		case Layer:
+			var layer LayerInformation
+			layer, line = extractLayerInformation(scanner)
+			if len(layer.Data) > 0 {
+				continue
+			}
+		}
+		if len(line) == 0 {
+			line = scanner.Text()
+		}
+		state = determineState(line)
 	}
-	width, height := extractDimensions(lines[0])
-	tilemap := NewTileMap(width, height)
-	return fillMap(tilemap, lines[1:])
 
+	return data.Maze
+}
+
+func prepareMaze(scanner *bufio.Scanner) (TileMap, string) {
+	// state := Header
+	var width, height int = 0, 0
+	var line string
+	for scanner.Scan() {
+		line = scanner.Text()
+		if determineState(line) == Unknown {
+			break
+		}
+		splitLine := strings.Split(line, "=")
+		if len(splitLine) > 2 {
+			log.Fatal(errors.New(fmt.Sprintf("Invalid header information for %s", line)))
+		}
+	}
+	return NewTileMap(width, height), ""
+}
+
+func extractPlayerDetails(scanner *bufio.Scanner) (algebra.Point, string) {
+	return algebra.MakePoint(0, 0), ""
+}
+
+func extractLightSources(scanner *bufio.Scanner) ([]lighting.Lightsource, string) {
+	return []lighting.Lightsource{}, ""
+}
+
+func extractLayerInformation(scanner *bufio.Scanner) (LayerInformation, string) {
+	return LayerInformation{}, ""
+}
+
+func determineState(line string) TileMapParserState {
+	return Unknown
 }
 
 func extractDimensions(line string) (int, int) {
