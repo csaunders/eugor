@@ -34,7 +34,7 @@ const (
 	Layer
 )
 
-func LoadTilemap(filename string) TileMap {
+func LoadTilemap(filename string) MapData {
 	file, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
@@ -71,7 +71,7 @@ func LoadTilemap(filename string) TileMap {
 		state = determineState(line)
 	}
 
-	return data.Maze
+	return data
 }
 
 func prepareMaze(scanner *bufio.Scanner) (TileMap, string) {

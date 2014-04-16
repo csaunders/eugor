@@ -4,7 +4,6 @@ import (
 	"eugor/algebra"
 	"eugor/camera"
 	"eugor/dungeon"
-	"eugor/lighting"
 	"eugor/logger"
 	"eugor/particles"
 	"eugor/sprites"
@@ -41,15 +40,19 @@ func main() {
 		},
 	}
 
-	torch1 := lighting.NewTorch(23, 26).Tick()
-	torch2 := lighting.NewTorch(47, 20).Tick()
+	mapConfiguration := dungeon.LoadTilemap("./empty.tlm")
+	maze := mapConfiguration.Maze
+	lights := mapConfiguration.MazeLights
+
+	// torch1 := lighting.NewTorch(23, 26).Tick()
+	// torch2 := lighting.NewTorch(47, 20).Tick()
 
 	emmiter := particles.MakeEmmiter(algebra.MakePoint(30, 10), 5)
+	start := mapConfiguration.PlayerStart
 
-	char := sprites.MakeCharacter(8, 12, termbox.ColorMagenta)
+	char := sprites.MakeCharacter(start.X, start.Y, termbox.ColorMagenta)
 	log := logger.Logger{Render: false}
 	// width, height := termbox.Size()
-	maze := dungeon.LoadTilemap("./empty.tlm")
 	// maze := dungeon.NewTileMap(width, height)
 	// maze = maze.AddRoom(5, 10, 10, 15)
 	// maze = maze.AddRoom(20, 20, 20, 10)
@@ -66,22 +69,18 @@ func main() {
 
 	for running {
 		termbox.Clear(termbox.ColorGreen, termbox.ColorBlack)
-		// maze = maze.AdjustCamera(char.X(), char.Y())
-		// char.DrawInCenter = maze.IsOffset()
-		//maze.Draw()
-		//char.Draw()
 		characterFocus, dungeonStartPoint, meta := camera.CameraDraw(maze, char)
-		lights := []lighting.Lightsource{char.Vision(characterFocus), torch1, torch2}
 		emmiter = emmiter.Update()
 		emmiter.Draw()
 		if fog {
-			dungeon.ApplyFog(dungeonStartPoint, maze, lights)
+			dungeon.ApplyFog(dungeonStartPoint, maze, append(lights, char.Vision(characterFocus)))
 		}
 		log.Draw()
 		mapContext.Draw()
 		termbox.Flush()
-		torch1 = torch1.Tick()
-		torch2 = torch2.Tick()
+		for i, light := range lights {
+			lights[i] = light.Tick()
+		}
 		event := termbox.PollEvent()
 		charPoint := algebra.MakePoint(char.X(), char.Y())
 		switch {
