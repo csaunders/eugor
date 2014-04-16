@@ -27,6 +27,7 @@ type TileMapParserState int
 
 const (
 	Unknown TileMapParserState = iota
+	Continue
 	Header
 	Player
 	LightSources
@@ -43,20 +44,25 @@ func LoadTilemap(filename string) TileMap {
 	scanner := bufio.NewScanner(file)
 	state := Unknown
 	data := MapData{}
+	var line string = ""
 	for scanner.Scan() {
-		var line string = ""
 		switch state {
 		case Header:
 			data.Maze, line = prepareMaze(scanner)
+			fmt.Println("Maze Overview has been Extracted")
 		case Player:
 			data.PlayerStart, line = extractPlayerDetails(scanner)
+			fmt.Println("Player Overview has been Extracted")
 		case LightSources:
 			data.MazeLights, line = extractLightSources(scanner)
+			fmt.Println("Light Sources have been Extracted")
 		case Layer:
 			var layer LayerInformation
 			layer, line = extractLayerInformation(scanner)
-			if len(layer.Data) > 0 {
-				continue
+			fmt.Println("Layer details have been Extracted")
+			if layer.Type == "map" && len(layer.Data) > 0 {
+				fmt.Println("Layer is a map, filling Maze with data")
+				data.Maze = fillMap(data.Maze, layer.Data)
 			}
 		}
 		if len(line) == 0 {
@@ -69,11 +75,9 @@ func LoadTilemap(filename string) TileMap {
 }
 
 func prepareMaze(scanner *bufio.Scanner) (TileMap, string) {
-	// state := Header
 	var width, height int = 0, 0
-	var line string
-	for scanner.Scan() {
-		line = scanner.Text()
+	for true {
+		line := scanner.Text()
 		if determineState(line) == Unknown {
 			break
 		}
@@ -81,24 +85,108 @@ func prepareMaze(scanner *bufio.Scanner) (TileMap, string) {
 		if len(splitLine) > 2 {
 			log.Fatal(errors.New(fmt.Sprintf("Invalid header information for %s", line)))
 		}
+		value, _ := strconv.ParseInt(splitLine[1], 10, 64)
+		switch splitLine[0] {
+		case "width":
+			width = int(value)
+		case "height":
+			height = int(value)
+		}
+		scanner.Scan()
 	}
 	return NewTileMap(width, height), ""
 }
 
 func extractPlayerDetails(scanner *bufio.Scanner) (algebra.Point, string) {
-	return algebra.MakePoint(0, 0), ""
+	var x, y int = 0, 0
+	for true {
+		line := scanner.Text()
+		if determineState(line) == Unknown {
+			break
+		}
+		splitLine := strings.Split(line, "=")
+		if len(splitLine) > 2 {
+			log.Fatal(errors.New(fmt.Sprintf("Invalid player information for %s", line)))
+		}
+		value, _ := strconv.ParseInt(splitLine[1], 10, 64)
+		switch splitLine[0] {
+		case "x":
+			x = int(value)
+		case "y":
+			y = int(value)
+		}
+		scanner.Scan()
+	}
+	return algebra.MakePoint(x, y), ""
 }
 
 func extractLightSources(scanner *bufio.Scanner) ([]lighting.Lightsource, string) {
-	return []lighting.Lightsource{}, ""
+	lights := []lighting.Lightsource{}
+	for true {
+		line := scanner.Text()
+		if determineState(line) == Unknown {
+			break
+		}
+		splitLine := strings.Split(line, ",")
+		if len(splitLine) > 3 {
+			log.Fatal(errors.New(fmt.Sprintf("Invalid light source information for %s", line)))
+		}
+		switch splitLine[0] {
+		case "torch":
+			x, _ := strconv.ParseInt(splitLine[1], 10, 64)
+			y, _ := strconv.ParseInt(splitLine[2], 10, 64)
+			torch := lighting.NewTorch(int(x), int(y))
+			lights = append(lights, torch)
+		}
+
+		scanner.Scan()
+	}
+	return lights, ""
 }
 
 func extractLayerInformation(scanner *bufio.Scanner) (LayerInformation, string) {
-	return LayerInformation{}, ""
+	layer := LayerInformation{}
+	scanning := true
+	for scanning {
+		line := scanner.Text()
+		if determineState(line) == Unknown {
+			scanning = false
+			break
+		}
+		splitLine := strings.Split(line, "=")
+		if len(splitLine) < 1 {
+			log.Fatal(errors.New(fmt.Sprintf("Invalid layer information for %s", line)))
+		}
+		switch splitLine[0] {
+		case "type":
+			layer.Type = splitLine[1]
+		case "data":
+			layer.Data = extractMapData(scanner)
+			scanning = false
+		}
+		if scanning {
+			scanner.Scan()
+		}
+	}
+	fmt.Println("returning layer")
+	return layer, ""
 }
 
 func determineState(line string) TileMapParserState {
-	return Unknown
+	switch line {
+	case "[header]":
+		return Header
+	case "[player]":
+		return Player
+	case "[lightsources]":
+		return LightSources
+	case "[layer]":
+		return Layer
+	case "":
+		return Unknown
+	default:
+		return Continue
+	}
 }
 
 func extractDimensions(line string) (int, int) {
@@ -108,10 +196,23 @@ func extractDimensions(line string) (int, int) {
 	return int(width), int(height)
 }
 
+func extractMapData(scanner *bufio.Scanner) []string {
+	result := []string{}
+	for scanner.Scan() {
+		line := scanner.Text()
+		if determineState(line) == Unknown {
+			break
+		}
+		result = append(result, line)
+	}
+	return result
+}
+
 func fillMap(tilemap TileMap, lines []string) TileMap {
 	y := 0
 	for _, line := range lines {
-		for x, letter := range line {
+		entries := strings.Split(line, ",")
+		for x, letter := range entries {
 			tile, _ := strconv.ParseUint(string(letter), 10, 16)
 			tilemap.Tiles[x][y] = uint16(tile)
 		}
