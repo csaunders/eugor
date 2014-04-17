@@ -14,5 +14,6 @@ type Lightsource interface {
 	Intensity() int
 	Projection() Projection
 	ToString() string
+	Name() string
 	IsLighting(x, y int) bool
 }

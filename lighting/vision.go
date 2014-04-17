@@ -38,6 +38,10 @@ func (v Vision) Projection() Projection {
 	return Static
 }
 
+func (v Vision) Name() string {
+	return "vision"
+}
+
 func (v Vision) ToString() string {
 	return ""
 }

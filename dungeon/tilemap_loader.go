@@ -12,17 +12,6 @@ import (
 	"strings"
 )
 
-type MapData struct {
-	Maze        TileMap
-	PlayerStart algebra.Point
-	MazeLights  []lighting.Lightsource
-}
-
-type LayerInformation struct {
-	Type string
-	Data []string
-}
-
 type TileMapParserState int
 
 const (
