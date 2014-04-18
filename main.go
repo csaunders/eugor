@@ -4,6 +4,7 @@ import (
 	"eugor/algebra"
 	"eugor/camera"
 	"eugor/dungeon"
+	"eugor/lighting"
 	"eugor/logger"
 	"eugor/particles"
 	"eugor/sprites"
@@ -40,12 +41,13 @@ func main() {
 		},
 	}
 
-	mapConfiguration := dungeon.LoadTilemap("./empty.tlm")
+	mapConfiguration := dungeon.LoadTilemap("./persisted.tlm")
 	maze := mapConfiguration.Maze
 	lights := mapConfiguration.MazeLights
 
 	// torch1 := lighting.NewTorch(23, 26).Tick()
 	// torch2 := lighting.NewTorch(47, 20).Tick()
+	// lights := []lighting.Lightsource{torch1, torch2}
 
 	emmiter := particles.MakeEmmiter(algebra.MakePoint(30, 10), 5)
 	start := mapConfiguration.PlayerStart
@@ -97,7 +99,6 @@ func main() {
 			} else if maze.CanInteractWith(x, y) {
 				maze = maze.Interact(x, y)
 			}
-			// maze = maze.Move(event.Key)
 		case event.Ch == 'l':
 			event := logger.Event{LogLevel: logger.Info, Message: fmt.Sprintf("Character Position: (%d, %d)", char.X(), char.Y())}
 			log = log.AppendEvent(event)
@@ -107,6 +108,8 @@ func main() {
 			x, y := termbox.Size()
 			event := logger.Event{LogLevel: logger.Info, Message: fmt.Sprintf("Screen Size: (%d, %d)", x, y)}
 			log = log.AppendEvent(event)
+		case event.Ch == 'S':
+			persistMapDetails(maze, char, lights)
 		case event.Ch == 'm':
 			event := logger.Event{LogLevel: logger.Info, Message: fmt.Sprintf("(%s)Character Draw Position: (%d, %d)\tDungeon Start Point: (%d, %d)", meta, characterFocus.X, characterFocus.Y, dungeonStartPoint.X, dungeonStartPoint.Y)}
 			log = log.AppendEvent(event)
@@ -116,4 +119,10 @@ func main() {
 			termbox.SetCell(10, 10, event.Ch, termbox.ColorRed, termbox.ColorBlack)
 		}
 	}
+}
+
+func persistMapDetails(maze dungeon.TileMap, player sprites.Character, lights []lighting.Lightsource) {
+	start := algebra.MakePoint(player.X(), player.Y())
+	data := dungeon.MapData{Maze: maze, PlayerStart: start, MazeLights: lights}
+	dungeon.SaveTilemap(data, "persisted.tlm")
 }

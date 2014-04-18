@@ -3,7 +3,7 @@ package dungeon
 import (
 	"eugor/algebra"
 	"eugor/lighting"
-	"strconv"
+	"fmt"
 	"strings"
 )
 
@@ -21,11 +21,13 @@ type LayerInformation struct {
 func TileMapToLayer(t TileMap) LayerInformation {
 	data := make([]string, t.Height)
 	placeholder := make([]string, t.Width)
-	for y, row := range t.Tiles {
-		for x, item := range row {
-			placeholder[x] = strconv.FormatUint(uint64(item), 10)
+	for y := 0; y < t.Height; y++ {
+		for x := 0; x < t.Width; x++ {
+			item := t.Tiles[x][y]
+			placeholder[x] = fmt.Sprintf("%d", item)
 		}
 		data[y] = strings.Join(placeholder, ",")
 	}
+
 	return LayerInformation{Type: "map", Data: data}
 }

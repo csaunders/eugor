@@ -24,23 +24,23 @@ func SaveTilemap(data MapData, filename string) {
 }
 
 func writeHeader(w *bufio.Writer, data MapData) {
-	w.WriteString("[header]")
-	w.WriteString(fmt.Sprintf("height=%d", data.Maze.Height))
-	w.WriteString(fmt.Sprintf("width=%d", data.Maze.Width))
+	writeLine(w, "[header]")
+	writeLine(w, fmt.Sprintf("height=%d", data.Maze.Height))
+	writeLine(w, fmt.Sprintf("width=%d", data.Maze.Width))
 	appendEmptyLine(w)
 }
 
 func writePlayerInformation(w *bufio.Writer, data MapData) {
-	w.WriteString("[player]")
-	w.WriteString(fmt.Sprintf("x=%d", data.PlayerStart.X))
-	w.WriteString(fmt.Sprintf("y=%d", data.PlayerStart.Y))
+	writeLine(w, "[player]")
+	writeLine(w, fmt.Sprintf("x=%d", data.PlayerStart.X))
+	writeLine(w, fmt.Sprintf("y=%d", data.PlayerStart.Y))
 	appendEmptyLine(w)
 }
 
 func writeLightSources(w *bufio.Writer, data MapData) {
-	w.WriteString("[lightsources]")
+	writeLine(w, "[lightsources]")
 	for _, l := range data.MazeLights {
-		w.WriteString(fmt.Sprintf("%s,%d,%d", l.Name(), l.X(), l.Y()))
+		writeLine(w, fmt.Sprintf("%s,%d,%d", l.Name(), l.X(), l.Y()))
 	}
 	appendEmptyLine(w)
 }
@@ -51,15 +51,20 @@ func writeMapInformation(w *bufio.Writer, data MapData) {
 }
 
 func writeLayerInformation(w *bufio.Writer, layer LayerInformation) {
-	w.WriteString("[layer]")
-	w.WriteString(fmt.Sprintf("type=%s", layer.Type))
-	w.WriteString("data=")
+	writeLine(w, "[layer]")
+	writeLine(w, fmt.Sprintf("type=%s", layer.Type))
+	writeLine(w, "data=")
 	for _, line := range layer.Data {
-		w.WriteString(line)
+		writeLine(w, line)
 	}
 	appendEmptyLine(w)
 }
 
 func appendEmptyLine(w *bufio.Writer) {
-	w.WriteString("")
+	writeLine(w, "")
+}
+
+func writeLine(w *bufio.Writer, s string) {
+	w.WriteString(s)
+	w.WriteString("\n")
 }
