@@ -53,6 +53,15 @@ func main() {
 	start := mapConfiguration.PlayerStart
 
 	char := sprites.MakeCharacter(start.X, start.Y, termbox.ColorMagenta)
+	monsters := []sprites.Creature{
+		sprites.MakeCreature(30, 15, termbox.ColorBlue, 'k'),
+		sprites.MakeCreature(45, 15, termbox.ColorYellow, '%'),
+		sprites.MakeCreature(30, 25, termbox.ColorGreen, '?'),
+	}
+	monsterDrawers := make([]camera.Drawable, len(monsters))
+	for i, m := range monsters {
+		monsterDrawers[i] = m
+	}
 	log := logger.Logger{Render: false}
 	// width, height := termbox.Size()
 	// maze := dungeon.NewTileMap(width, height)
@@ -71,7 +80,7 @@ func main() {
 
 	for running {
 		termbox.Clear(termbox.ColorGreen, termbox.ColorBlack)
-		characterFocus, dungeonStartPoint, meta := camera.CameraDraw(maze, char)
+		characterFocus, dungeonStartPoint, meta := camera.CameraDraw(maze, char, monsterDrawers)
 		emmiter = emmiter.Update()
 		emmiter.Draw()
 		if fog {
@@ -82,6 +91,10 @@ func main() {
 		termbox.Flush()
 		for i, light := range lights {
 			lights[i] = light.Tick()
+		}
+		for i, m := range monsters {
+			monsters[i] = m.Tick()
+			monsterDrawers[i] = monsters[i]
 		}
 		event := termbox.PollEvent()
 		charPoint := algebra.MakePoint(char.X(), char.Y())

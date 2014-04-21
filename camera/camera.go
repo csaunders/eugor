@@ -12,7 +12,7 @@ type Drawable interface {
 	Y() int
 }
 
-func CameraDraw(field dungeon.TileMap, focus Drawable) (focusDrawPoint, fieldStartPoint algebra.Point, meta string) {
+func CameraDraw(field dungeon.TileMap, focus Drawable, sprites []Drawable) (focusDrawPoint, fieldStartPoint algebra.Point, meta string) {
 	origin := algebra.MakePoint(0, 0)
 	position := algebra.MakePoint(focus.X(), focus.Y())
 	w, h := termbox.Size()
@@ -65,6 +65,24 @@ func CameraDraw(field dungeon.TileMap, focus Drawable) (focusDrawPoint, fieldSta
 			field.DrawProjection(x, y, fieldStartPoint.X+x, fieldStartPoint.Y+y)
 		}
 	}
+	for _, sprite := range sprites {
+		if IsOnScreen(sprite, fieldStartPoint) {
+			x := sprite.X() - fieldStartPoint.X
+			y := sprite.Y() - fieldStartPoint.Y
+			sprite.DrawProjection(x, y, sprite.X(), sprite.Y())
+		}
+	}
 	focus.DrawProjection(focusDrawPoint.X, focusDrawPoint.Y, position.X, position.Y)
 	return
+}
+
+func IsOnScreen(d Drawable, startPoint algebra.Point) bool {
+	w, h := termbox.Size()
+	x, y := d.X(), d.Y()
+	if x > startPoint.X && y < (startPoint.X+w) {
+		if x > startPoint.Y && y < (startPoint.Y+h) {
+			return true
+		}
+	}
+	return false
 }
