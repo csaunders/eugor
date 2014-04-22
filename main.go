@@ -58,6 +58,9 @@ func main() {
 		sprites.MakeCreature(45, 15, termbox.ColorYellow, '%'),
 		sprites.MakeCreature(30, 25, termbox.ColorGreen, '?'),
 	}
+	ms := monsters[0]
+	ms.Ai = sprites.MakeWalker(maze)
+	monsters[0] = ms
 	monsterDrawers := make([]camera.Drawable, len(monsters))
 	for i, m := range monsters {
 		monsterDrawers[i] = m
