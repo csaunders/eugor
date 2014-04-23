@@ -45,16 +45,12 @@ func main() {
 	maze := mapConfiguration.Maze
 	lights := mapConfiguration.MazeLights
 
-	// torch1 := lighting.NewTorch(23, 26).Tick()
-	// torch2 := lighting.NewTorch(47, 20).Tick()
-	// lights := []lighting.Lightsource{torch1, torch2}
-
 	emmiter := particles.MakeEmmiter(algebra.MakePoint(30, 10), 5)
 	start := mapConfiguration.PlayerStart
 
 	char := sprites.MakeCharacter(start.X, start.Y, termbox.ColorMagenta)
 	monsters := []sprites.Creature{
-		sprites.MakeCreature(30, 15, termbox.ColorBlue, 'k'),
+		sprites.MakeCreature(60, 15, termbox.ColorBlue, 'k'),
 		sprites.MakeCreature(45, 15, termbox.ColorYellow, '%'),
 		sprites.MakeCreature(30, 25, termbox.ColorGreen, '?'),
 	}
@@ -66,16 +62,6 @@ func main() {
 		monsterDrawers[i] = m
 	}
 	log := logger.Logger{Render: false}
-	// width, height := termbox.Size()
-	// maze := dungeon.NewTileMap(width, height)
-	// maze = maze.AddRoom(5, 10, 10, 15)
-	// maze = maze.AddRoom(20, 20, 20, 10)
-	// maze = maze.AddRoom(14, 21, 7, 3)
-	// maze = maze.AddRoom(41, 0, width-41, height)
-	// maze = maze.AddDoor(39, 26)
-	// maze = maze.AddDoor(41, 26)
-	// maze = maze.AddDoor(14, 22)
-	// maze = maze.AddDoor(20, 22)
 
 	mapContext := sprites.MapContext{TileMap: maze}
 	mapContext = mapContext.AddInteraction(closeDoor)
