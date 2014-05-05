@@ -9,38 +9,36 @@ import (
 )
 
 type Interactable struct {
-	Test   func(point algebra.Point, tileMap dungeon.TileMap) bool
-	Action func(point algebra.Point, tileMap dungeon.TileMap) dungeon.TileMap
+	Test   func(point algebra.Point, tileMap *dungeon.TileMap) bool
+	Action func(point algebra.Point, tileMap *dungeon.TileMap)
 	Name   string
 }
 
 type MapContext struct {
-	TileMap             dungeon.TileMap
+	TileMap             *dungeon.TileMap
 	render              bool
 	cursor              int
 	currentInteractions map[string]algebra.Point
 	interactions        []Interactable
 }
 
-func (m MapContext) AddInteraction(i Interactable) MapContext {
+func (m *MapContext) AddInteraction(i Interactable) {
 	m.interactions = append(m.interactions, i)
-	return m
 }
 
-func (m MapContext) Toggle(point algebra.Point) MapContext {
+func (m *MapContext) Toggle(point algebra.Point) {
 	m.render = !m.render
 	m.cursor = 0
 	if m.render {
 		m.currentInteractions = m.Interactions(point)
 	}
-	return m
 }
 
-func (m MapContext) IsFocused() bool {
+func (m *MapContext) IsFocused() bool {
 	return m.render
 }
 
-func (m MapContext) HandleInput(point algebra.Point, event termbox.Event) MapContext {
+func (m *MapContext) HandleInput(point algebra.Point, event termbox.Event) {
 	switch event.Key {
 	case termbox.KeyArrowUp:
 		m.cursor = (m.cursor - 1) % len(m.interactions)
@@ -50,17 +48,16 @@ func (m MapContext) HandleInput(point algebra.Point, event termbox.Event) MapCon
 		i := 0
 		for _, p := range m.currentInteractions {
 			if m.cursor == i {
-				m.TileMap = m.PerformInteraction(p)
+				m.PerformInteraction(p)
 				break
 			}
 			i++
 		}
-		m = m.Toggle(point)
+		m.Toggle(point)
 	}
-	return m
 }
 
-func (m MapContext) Draw() {
+func (m *MapContext) Draw() {
 	if !m.render {
 		return
 	}
@@ -77,7 +74,7 @@ func (m MapContext) Draw() {
 	}
 }
 
-func (m MapContext) Interactions(point algebra.Point) map[string]algebra.Point {
+func (m *MapContext) Interactions(point algebra.Point) map[string]algebra.Point {
 	availableActions := m.interactables(point)
 	result := make(map[string]algebra.Point)
 	for p, interaction := range availableActions {
@@ -87,17 +84,16 @@ func (m MapContext) Interactions(point algebra.Point) map[string]algebra.Point {
 	return result
 }
 
-func (m MapContext) PerformInteraction(point algebra.Point) dungeon.TileMap {
+func (m *MapContext) PerformInteraction(point algebra.Point) {
 	for _, i := range m.interactions {
 		if i.Test(point, m.TileMap) {
-			m.TileMap = i.Action(point, m.TileMap)
+			i.Action(point, m.TileMap)
 			break
 		}
 	}
-	return m.TileMap
 }
 
-func (m MapContext) interactables(point algebra.Point) map[algebra.Point]Interactable {
+func (m *MapContext) interactables(point algebra.Point) map[algebra.Point]Interactable {
 	result := make(map[algebra.Point]Interactable)
 	points := algebra.MakePoints(point, []string{"up", "down", "left", "right"})
 	for _, interactable := range m.interactions {

@@ -10,7 +10,7 @@ const (
 type Lightsource interface {
 	X() int
 	Y() int
-	Tick() Lightsource
+	Tick()
 	Intensity() int
 	Projection() Projection
 	ToString() string

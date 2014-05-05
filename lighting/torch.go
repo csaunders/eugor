@@ -7,33 +7,33 @@ import (
 )
 
 type Torch struct {
-	emmiter       particles.Emmiter
+	emmiter       *particles.Emmiter
 	breathIn      bool
 	baseIntensity int
 	x             int
 	y             int
 }
 
-func NewTorch(x, y int) Torch {
+func NewTorch(x, y int) *Torch {
 	point := algebra.MakePoint(x, y)
 	emmiter := particles.MakeEmmiter(point, 20)
-	return Torch{emmiter: emmiter, x: x, y: y}
+	return &Torch{emmiter: emmiter, x: x, y: y}
 }
 
-func (t Torch) X() int {
+func (t *Torch) X() int {
 	return t.x
 }
 
-func (t Torch) Y() int {
+func (t *Torch) Y() int {
 	return t.y
 }
 
-func (t Torch) Intensity() (intensity int) {
+func (t *Torch) Intensity() (intensity int) {
 	intensity = 0
 	return
 }
 
-func (t Torch) IsLighting(x, y int) bool {
+func (t *Torch) IsLighting(x, y int) bool {
 	for _, particle := range t.emmiter.Particles {
 		loc := particle.Location
 		if loc.X == x && loc.Y == y {
@@ -43,19 +43,18 @@ func (t Torch) IsLighting(x, y int) bool {
 	return false
 }
 
-func (t Torch) Tick() Lightsource {
-	t.emmiter = t.emmiter.Update()
-	return t
+func (t *Torch) Tick() {
+	t.emmiter.Update()
 }
 
-func (t Torch) Projection() Projection {
+func (t *Torch) Projection() Projection {
 	return Relative
 }
 
-func (t Torch) Name() string {
+func (t *Torch) Name() string {
 	return "torch"
 }
 
-func (t Torch) ToString() string {
+func (t *Torch) ToString() string {
 	return fmt.Sprintf("(x: %d, y: %d, breathe: %v, intensity: %d)", t.x, t.y, t.breathIn, t.Intensity())
 }

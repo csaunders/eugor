@@ -13,23 +13,23 @@ type Character struct {
 	Color        termbox.Attribute
 }
 
-func MakeCharacter(x, y int, color termbox.Attribute) Character {
-	return Character{x: x, y: y, Color: color}
+func MakeCharacter(x, y int, color termbox.Attribute) *Character {
+	return &Character{x: x, y: y, Color: color}
 }
 
-func (c Character) DrawProjection(screenX, screenY int, positionX, positionY int) {
+func (c *Character) DrawProjection(screenX, screenY, positionX, positionY int) {
 	termbox.SetCell(screenX, screenY, '@', c.Color, termbox.ColorBlack)
 }
 
-func (c Character) X() int {
+func (c *Character) X() int {
 	return c.x
 }
 
-func (c Character) Y() int {
+func (c *Character) Y() int {
 	return c.y
 }
 
-func (c Character) Draw() {
+func (c *Character) Draw() {
 	x, y := c.x, c.y
 	if c.DrawInCenter {
 		sx, sy := termbox.Size()
@@ -38,7 +38,7 @@ func (c Character) Draw() {
 	termbox.SetCell(x, y, '@', c.Color, termbox.ColorBlack)
 }
 
-func (c Character) PredictedMovement(k termbox.Key) (int, int) {
+func (c *Character) PredictedMovement(k termbox.Key) (int, int) {
 	x, y := c.x, c.y
 	switch {
 	case k == termbox.KeyArrowUp:
@@ -53,16 +53,15 @@ func (c Character) PredictedMovement(k termbox.Key) (int, int) {
 	return x, y
 }
 
-func (c Character) Move(k termbox.Key) Character {
+func (c *Character) Move(k termbox.Key) {
 	c.x, c.y = c.PredictedMovement(k)
-	return c
 }
 
-func (c Character) Vision(p algebra.Point) lighting.Lightsource {
+func (c *Character) Vision(p algebra.Point) lighting.Lightsource {
 	return lighting.NewVision(p.X, p.Y, 3)
 }
 
-func (c Character) IsMovementEvent(e termbox.Event) bool {
+func (c *Character) IsMovementEvent(e termbox.Event) bool {
 	validEvents := []termbox.Key{
 		termbox.KeyArrowUp,
 		termbox.KeyArrowDown,

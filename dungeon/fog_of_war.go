@@ -6,7 +6,7 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
-func ApplyFog(p algebra.Point, d TileMap, lights []lighting.Lightsource) {
+func ApplyFog(p algebra.Point, d *TileMap, lights []lighting.Lightsource) {
 	w, h := termbox.Size()
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {

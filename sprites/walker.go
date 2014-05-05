@@ -8,11 +8,11 @@ import (
 )
 
 type WalkerLogic struct {
-	maze dungeon.TileMap
+	maze *dungeon.TileMap
 	prng *rand.Rand
 }
 
-func MakeWalker(maze dungeon.TileMap) WalkerLogic {
+func MakeWalker(maze *dungeon.TileMap) WalkerLogic {
 	prng := rand.New(rand.NewSource(time.Now().UnixNano()))
 	return WalkerLogic{maze: maze, prng: prng}
 }

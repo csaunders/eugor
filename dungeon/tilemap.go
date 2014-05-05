@@ -1,7 +1,6 @@
 package dungeon
 
 import (
-	"eugor/algebra"
 	"github.com/nsf/termbox-go"
 )
 
@@ -41,38 +40,15 @@ type TileMap struct {
 	ViewY  int
 }
 
-func NewTileMap(width, height int) TileMap {
+func NewTileMap(width, height int) *TileMap {
 	tiles := make([][]uint16, width)
 	for i := range tiles {
 		tiles[i] = make([]uint16, height)
 	}
-	tileMap := TileMap{Width: width, Height: height, Tiles: tiles, ViewX: 0, ViewY: 0}
-	return tileMap
+	return &TileMap{Width: width, Height: height, Tiles: tiles, ViewX: 0, ViewY: 0}
 }
 
-func (t TileMap) AdjustCamera(x, y int) TileMap {
-	mapSize := algebra.MakePoint(t.Width, t.Height)
-	size := algebra.MakePoint(termbox.Size())
-	halfSize := algebra.MakePoint(size.X/2, size.Y/2)
-	position := algebra.MakePoint(x, y)
-	var delta algebra.Point
-	if position.LessThan(halfSize) {
-		delta = algebra.MakePoint(0, 0)
-	} else if position.GreaterThan(mapSize.Minus(halfSize)) {
-		delta = mapSize.Minus(size)
-	} else {
-		delta = position.Minus(halfSize)
-	}
-	t.ViewX = delta.X
-	t.ViewY = delta.Y
-	return t
-}
-
-func (t TileMap) IsOffset() bool {
-	return t.ViewX != 0 && t.ViewY != 0
-}
-
-func (t TileMap) DrawProjection(screenX, screenY int, positionX, positionY int) {
+func (t *TileMap) DrawProjection(screenX, screenY int, positionX, positionY int) {
 	if t.WithinRange(positionX, positionY) {
 		value := t.Tiles[positionX][positionY]
 		tile := Tiles[value]
@@ -80,7 +56,7 @@ func (t TileMap) DrawProjection(screenX, screenY int, positionX, positionY int) 
 	}
 }
 
-func (t TileMap) Draw() {
+func (t *TileMap) Draw() {
 	width, height := termbox.Size()
 	for x := 0; x < width; x++ {
 		for y := 0; y < height; y++ {
@@ -103,16 +79,15 @@ func (t TileMap) Draw() {
 	}
 }
 
-func (t TileMap) fill(x, y, width, height int, value uint16) TileMap {
+func (t *TileMap) fill(x, y, width, height int, value uint16) {
 	for startX := x; startX < x+width; startX++ {
 		for startY := y; startY < y+height; startY++ {
 			t.Tiles[startX][startY] = value
 		}
 	}
-	return t
 }
 
-func (t TileMap) FetchTile(x, y int) Tile {
+func (t *TileMap) FetchTile(x, y int) Tile {
 	var tile Tile
 	if t.WithinRange(x, y) {
 		index := t.Tiles[x][y]
@@ -123,7 +98,7 @@ func (t TileMap) FetchTile(x, y int) Tile {
 	return tile
 }
 
-func (t TileMap) WithinRange(x, y int) (within bool) {
+func (t *TileMap) WithinRange(x, y int) (within bool) {
 	within = true
 	if x < 0 || y < 0 {
 		within = false
@@ -133,32 +108,29 @@ func (t TileMap) WithinRange(x, y int) (within bool) {
 	return
 }
 
-func (t TileMap) CanMoveTo(x, y int) bool {
+func (t *TileMap) CanMoveTo(x, y int) bool {
 	return t.FetchTile(x, y).Walkable
 }
 
-func (t TileMap) CanInteractWith(x, y int) bool {
+func (t *TileMap) CanInteractWith(x, y int) bool {
 	return t.FetchTile(x, y).Interactable
 }
 
-func (t TileMap) Interact(x, y int) TileMap {
+func (t *TileMap) Interact(x, y int) {
 	tile := t.FetchTile(x, y)
 	replacement := FindTile(tile.TransformsTo)
 	t.Tiles[x][y] = replacement
-	return t
 }
 
-func (t TileMap) AddRoom(x, y, width, height int) TileMap {
+func (t *TileMap) AddRoom(x, y, width, height int) {
 	var wall uint16 = FindTile("wall")
-	t = t.fill(x, y, width, 1, wall)
-	t = t.fill(x, y, 1, height, wall)
-	t = t.fill(x+width-1, y, 1, height, wall)
-	t = t.fill(x, y+height-1, width, 1, wall)
-	return t
+	t.fill(x, y, width, 1, wall)
+	t.fill(x, y, 1, height, wall)
+	t.fill(x+width-1, y, 1, height, wall)
+	t.fill(x, y+height-1, width, 1, wall)
 }
 
-func (t TileMap) AddDoor(x, y int) TileMap {
+func (t *TileMap) AddDoor(x, y int) {
 	var door uint16 = FindTile("door")
 	t.Tiles[x][y] = door
-	return t
 }

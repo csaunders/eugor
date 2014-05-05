@@ -51,7 +51,7 @@ func LoadTilemap(filename string) MapData {
 			fmt.Println("Layer details have been Extracted")
 			if layer.Type == "map" && len(layer.Data) > 0 {
 				fmt.Println("Layer is a map, filling Maze with data")
-				data.Maze = fillMap(data.Maze, layer.Data)
+				fillMap(data.Maze, layer.Data)
 			}
 		}
 		if len(line) == 0 {
@@ -63,7 +63,7 @@ func LoadTilemap(filename string) MapData {
 	return data
 }
 
-func prepareMaze(scanner *bufio.Scanner) (TileMap, string) {
+func prepareMaze(scanner *bufio.Scanner) (*TileMap, string) {
 	var width, height int = 0, 0
 	for true {
 		line := scanner.Text()
@@ -197,7 +197,7 @@ func extractMapData(scanner *bufio.Scanner) []string {
 	return result
 }
 
-func fillMap(tilemap TileMap, lines []string) TileMap {
+func fillMap(tilemap *TileMap, lines []string) {
 	y := 0
 	for _, line := range lines {
 		entries := strings.Split(line, ",")
@@ -207,5 +207,4 @@ func fillMap(tilemap TileMap, lines []string) TileMap {
 		}
 		y++
 	}
-	return tilemap
 }

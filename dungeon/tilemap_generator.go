@@ -7,7 +7,7 @@ import (
 
 var generatorPrng *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
-func GenerateTileMap(width, height int) TileMap {
+func GenerateTileMap(width, height int) *TileMap {
 	maze := NewTileMap(width, height)
 	tiles := maze.Tiles
 	fillTileMap(FindTile("wall"), tiles)
@@ -25,7 +25,7 @@ func fillTileMap(value uint16, tiles [][]uint16) {
 	}
 }
 
-func digStartingRoom(maze TileMap, tiles [][]uint16) {
+func digStartingRoom(maze *TileMap, tiles [][]uint16) {
 	originX := maze.Width / 2
 	originY := maze.Height / 2
 	width := 14 + generatorPrng.Intn(5)

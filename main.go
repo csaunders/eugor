@@ -22,22 +22,22 @@ func main() {
 
 	closeDoor := sprites.Interactable{
 		Name: "Close Door",
-		Test: func(p algebra.Point, d dungeon.TileMap) bool {
+		Test: func(p algebra.Point, d *dungeon.TileMap) bool {
 			tile := d.FetchTile(p.X, p.Y)
 			return d.CanInteractWith(p.X, p.Y) && tile.Name == "opendoor"
 		},
-		Action: func(p algebra.Point, d dungeon.TileMap) dungeon.TileMap {
-			return d.Interact(p.X, p.Y)
+		Action: func(p algebra.Point, d *dungeon.TileMap) {
+			d.Interact(p.X, p.Y)
 		},
 	}
 	openDoor := sprites.Interactable{
 		Name: "Open Door",
-		Test: func(p algebra.Point, d dungeon.TileMap) bool {
+		Test: func(p algebra.Point, d *dungeon.TileMap) bool {
 			tile := d.FetchTile(p.X, p.Y)
 			return d.CanInteractWith(p.X, p.Y) && tile.Name == "door"
 		},
-		Action: func(p algebra.Point, d dungeon.TileMap) dungeon.TileMap {
-			return d.Interact(p.X, p.Y)
+		Action: func(p algebra.Point, d *dungeon.TileMap) {
+			d.Interact(p.X, p.Y)
 		},
 	}
 
@@ -49,7 +49,7 @@ func main() {
 	start := mapConfiguration.PlayerStart
 
 	char := sprites.MakeCharacter(start.X, start.Y, termbox.ColorMagenta)
-	monsters := []sprites.Creature{
+	monsters := []*sprites.Creature{
 		sprites.MakeCreature(60, 15, termbox.ColorBlue, 'k'),
 		sprites.MakeCreature(45, 15, termbox.ColorYellow, '%'),
 		sprites.MakeCreature(30, 25, termbox.ColorGreen, '?'),
@@ -63,14 +63,14 @@ func main() {
 	}
 	log := logger.Logger{Render: false}
 
-	mapContext := sprites.MapContext{TileMap: maze}
-	mapContext = mapContext.AddInteraction(closeDoor)
-	mapContext = mapContext.AddInteraction(openDoor)
+	mapContext := &sprites.MapContext{TileMap: maze}
+	mapContext.AddInteraction(closeDoor)
+	mapContext.AddInteraction(openDoor)
 
 	for running {
 		termbox.Clear(termbox.ColorGreen, termbox.ColorBlack)
 		characterFocus, dungeonStartPoint, meta := camera.CameraDraw(maze, char, monsterDrawers)
-		emmiter = emmiter.Update()
+		emmiter.Update()
 		emmiter.Draw()
 		if fog {
 			dungeon.ApplyFog(dungeonStartPoint, maze, append(lights, char.Vision(characterFocus)))
@@ -78,11 +78,11 @@ func main() {
 		log.Draw()
 		mapContext.Draw()
 		termbox.Flush()
-		for i, light := range lights {
-			lights[i] = light.Tick()
+		for _, light := range lights {
+			light.Tick()
 		}
 		for i, m := range monsters {
-			monsters[i] = m.Tick()
+			m.Tick()
 			monsterDrawers[i] = monsters[i]
 		}
 		event := termbox.PollEvent()
@@ -91,15 +91,15 @@ func main() {
 		case event.Key == termbox.KeyEsc:
 			running = false
 		case event.Ch == 'i':
-			mapContext = mapContext.Toggle(charPoint)
+			mapContext.Toggle(charPoint)
 		case mapContext.IsFocused():
-			mapContext = mapContext.HandleInput(charPoint, event)
+			mapContext.HandleInput(charPoint, event)
 		case char.IsMovementEvent(event):
 			x, y := char.PredictedMovement(event.Key)
 			if maze.CanMoveTo(x, y) {
-				char = char.Move(event.Key)
+				char.Move(event.Key)
 			} else if maze.CanInteractWith(x, y) {
-				maze = maze.Interact(x, y)
+				maze.Interact(x, y)
 			}
 		case event.Ch == 'l':
 			event := logger.Event{LogLevel: logger.Info, Message: fmt.Sprintf("Character Position: (%d, %d)", char.X(), char.Y())}
@@ -123,7 +123,7 @@ func main() {
 	}
 }
 
-func persistMapDetails(maze dungeon.TileMap, player sprites.Character, lights []lighting.Lightsource) {
+func persistMapDetails(maze *dungeon.TileMap, player *sprites.Character, lights []lighting.Lightsource) {
 	start := algebra.MakePoint(player.X(), player.Y())
 	data := dungeon.MapData{Maze: maze, PlayerStart: start, MazeLights: lights}
 	dungeon.SaveTilemap(data, "persisted.tlm")

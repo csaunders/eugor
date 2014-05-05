@@ -12,7 +12,7 @@ type Drawable interface {
 	Y() int
 }
 
-func CameraDraw(field dungeon.TileMap, focus Drawable, sprites []Drawable) (focusDrawPoint, fieldStartPoint algebra.Point, meta string) {
+func CameraDraw(field *dungeon.TileMap, focus Drawable, sprites []Drawable) (focusDrawPoint, fieldStartPoint algebra.Point, meta string) {
 	origin := algebra.MakePoint(0, 0)
 	position := algebra.MakePoint(focus.X(), focus.Y())
 	w, h := termbox.Size()
