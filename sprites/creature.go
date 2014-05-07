@@ -2,12 +2,11 @@ package sprites
 
 import (
 	"eugor/algebra"
-	"eugor/dungeon"
 	"github.com/nsf/termbox-go"
 )
 
 type CreatureLogic interface {
-	Scan(maze dungeon.TileMap)
+	Scan()
 	Move(p algebra.Point) algebra.Point
 }
 
@@ -41,7 +40,7 @@ func (c *Creature) DrawProjection(screenX, screenY, positionX, positionY int) {
 
 type DumbAi struct{}
 
-func (d DumbAi) Scan(maze dungeon.TileMap) {}
+func (d DumbAi) Scan() {}
 
 func (d DumbAi) Move(p algebra.Point) algebra.Point {
 	if p.X%2 == 0 {

@@ -81,9 +81,8 @@ func main() {
 		for _, light := range lights {
 			light.Tick()
 		}
-		for i, m := range monsters {
+		for _, m := range monsters {
 			m.Tick()
-			monsterDrawers[i] = monsters[i]
 		}
 		event := termbox.PollEvent()
 		charPoint := algebra.MakePoint(char.X(), char.Y())

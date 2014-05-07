@@ -17,7 +17,7 @@ func MakeWalker(maze *dungeon.TileMap) WalkerLogic {
 	return WalkerLogic{maze: maze, prng: prng}
 }
 
-func (w WalkerLogic) Scan(maze dungeon.TileMap) {}
+func (w WalkerLogic) Scan() {}
 
 func (w WalkerLogic) Move(p algebra.Point) algebra.Point {
 	x := w.generateAdjustment()
