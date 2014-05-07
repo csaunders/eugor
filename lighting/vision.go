@@ -1,10 +1,12 @@
 package lighting
 
+import "eugor/dungeon"
+
 type Vision struct {
 	intensity int
 	x         int
 	y         int
-	raycaster Raycaster
+	raycaster *Raycaster
 }
 
 func NewVision(x, y, intensity int, m *dungeon.TileMap) *Vision {

@@ -7,6 +7,7 @@ import (
 	"eugor/lighting"
 	"eugor/logger"
 	"eugor/particles"
+	"eugor/persistence"
 	"eugor/sprites"
 	"fmt"
 	"github.com/nsf/termbox-go"
@@ -41,7 +42,7 @@ func main() {
 		},
 	}
 
-	mapConfiguration := dungeon.LoadTilemap("./persisted.tlm")
+	mapConfiguration := persistence.LoadTilemap("./persisted.tlm")
 	maze := mapConfiguration.Maze
 	lights := mapConfiguration.MazeLights
 
@@ -73,7 +74,7 @@ func main() {
 		emmiter.Update()
 		emmiter.Draw()
 		if fog {
-			dungeon.ApplyFog(dungeonStartPoint, maze, append(lights, char.Vision(characterFocus)))
+			lighting.ApplyFog(dungeonStartPoint, maze, append(lights, char.Vision(characterFocus, maze)))
 		}
 		log.Draw()
 		mapContext.Draw()
@@ -124,6 +125,6 @@ func main() {
 
 func persistMapDetails(maze *dungeon.TileMap, player *sprites.Character, lights []lighting.Lightsource) {
 	start := algebra.MakePoint(player.X(), player.Y())
-	data := dungeon.MapData{Maze: maze, PlayerStart: start, MazeLights: lights}
-	dungeon.SaveTilemap(data, "persisted.tlm")
+	data := persistence.MapData{Maze: maze, PlayerStart: start, MazeLights: lights}
+	persistence.SaveTilemap(data, "persisted.tlm")
 }

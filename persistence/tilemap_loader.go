@@ -1,9 +1,10 @@
-package dungeon
+package persistence
 
 import (
 	"bufio"
 	"errors"
 	"eugor/algebra"
+	"eugor/dungeon"
 	"eugor/lighting"
 	"fmt"
 	"log"
@@ -60,10 +61,12 @@ func LoadTilemap(filename string) MapData {
 		state = determineState(line)
 	}
 
+	fmt.Println("Done!")
+
 	return data
 }
 
-func prepareMaze(scanner *bufio.Scanner) (*TileMap, string) {
+func prepareMaze(scanner *bufio.Scanner) (*dungeon.TileMap, string) {
 	var width, height int = 0, 0
 	for true {
 		line := scanner.Text()
@@ -83,7 +86,7 @@ func prepareMaze(scanner *bufio.Scanner) (*TileMap, string) {
 		}
 		scanner.Scan()
 	}
-	return NewTileMap(width, height), ""
+	return dungeon.NewTileMap(width, height), ""
 }
 
 func extractPlayerDetails(scanner *bufio.Scanner) (algebra.Point, string) {
@@ -197,7 +200,7 @@ func extractMapData(scanner *bufio.Scanner) []string {
 	return result
 }
 
-func fillMap(tilemap *TileMap, lines []string) {
+func fillMap(tilemap *dungeon.TileMap, lines []string) {
 	y := 0
 	for _, line := range lines {
 		entries := strings.Split(line, ",")

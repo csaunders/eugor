@@ -1,14 +1,15 @@
-package dungeon
+package persistence
 
 import (
 	"eugor/algebra"
+	"eugor/dungeon"
 	"eugor/lighting"
 	"fmt"
 	"strings"
 )
 
 type MapData struct {
-	Maze        *TileMap
+	Maze        *dungeon.TileMap
 	PlayerStart algebra.Point
 	MazeLights  []lighting.Lightsource
 }
@@ -18,7 +19,7 @@ type LayerInformation struct {
 	Data []string
 }
 
-func TileMapToLayer(t *TileMap) LayerInformation {
+func TileMapToLayer(t *dungeon.TileMap) LayerInformation {
 	data := make([]string, t.Height)
 	placeholder := make([]string, t.Width)
 	for y := 0; y < t.Height; y++ {
