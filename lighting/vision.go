@@ -1,17 +1,16 @@
 package lighting
 
-import (
-	"math"
-)
-
 type Vision struct {
 	intensity int
 	x         int
 	y         int
+	raycaster Raycaster
 }
 
-func NewVision(x, y, intensity int) *Vision {
-	return &Vision{x: x, y: y, intensity: intensity}
+func NewVision(x, y, intensity int, m *dungeon.TileMap) *Vision {
+	raycaster := MakeRaycaster(m)
+	raycaster.CastRays(x, y, intensity)
+	return &Vision{x: x, y: y, intensity: intensity, raycaster: raycaster}
 }
 
 func (v *Vision) X() int {
@@ -27,10 +26,13 @@ func (v *Vision) Intensity() int {
 }
 
 func (v *Vision) IsLighting(x, y int) bool {
-	return math.Abs(float64(v.x-x)) <= float64(v.intensity) && math.Abs(float64(v.y-y)) <= float64(v.intensity)
+	return v.raycaster.IsLighting(x, y)
+	// return math.Abs(float64(v.x-x)) <= float64(v.intensity) && math.Abs(float64(v.y-y)) <= float64(v.intensity)
 }
 
-func (v *Vision) Tick() {}
+func (v *Vision) Tick() {
+
+}
 
 func (v *Vision) Projection() Projection {
 	return Static

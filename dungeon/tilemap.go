@@ -9,16 +9,17 @@ type Tile struct {
 	Char         rune
 	Walkable     bool
 	Interactable bool
+	SeeThrough   bool
 	TransformsTo string
 	Fg           termbox.Attribute
 	Bg           termbox.Attribute
 }
 
 var Tiles = []Tile{
-	Tile{Name: "floor", Char: ' ', Walkable: true, Fg: termbox.ColorWhite, Bg: termbox.ColorBlack},
+	Tile{Name: "floor", Char: ' ', Walkable: true, SeeThrough: true, Fg: termbox.ColorWhite, Bg: termbox.ColorBlack},
 	Tile{Name: "wall", Char: 'X', Fg: termbox.ColorRed, Bg: termbox.ColorBlack},
 	Tile{Name: "door", Char: 'D', Interactable: true, TransformsTo: "opendoor", Fg: termbox.ColorYellow, Bg: termbox.ColorBlack},
-	Tile{Name: "opendoor", Char: '.', Interactable: true, Walkable: true, TransformsTo: "door", Fg: termbox.ColorYellow, Bg: termbox.ColorBlack},
+	Tile{Name: "opendoor", Char: '.', Interactable: true, Walkable: true, SeeThrough: true, TransformsTo: "door", Fg: termbox.ColorYellow, Bg: termbox.ColorBlack},
 	Tile{Name: "greengrass", Char: '⁙', Walkable: true, Fg: termbox.ColorGreen, Bg: termbox.ColorBlack},
 	Tile{Name: "bluegrass", Char: '⁙', Walkable: true, Fg: termbox.ColorBlue, Bg: termbox.ColorBlack},
 }
