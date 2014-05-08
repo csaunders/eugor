@@ -59,7 +59,7 @@ func (c *Character) Move(k termbox.Key) {
 }
 
 func (c *Character) Vision(p algebra.Point, m *dungeon.TileMap) lighting.Lightsource {
-	return lighting.NewVision(p.X, p.Y, 3, m)
+	return lighting.NewVision(p.X, p.Y, 10, m)
 }
 
 func (c *Character) IsMovementEvent(e termbox.Event) bool {

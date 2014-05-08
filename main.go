@@ -74,7 +74,9 @@ func main() {
 		emmiter.Update()
 		emmiter.Draw()
 		if fog {
-			lighting.ApplyFog(dungeonStartPoint, maze, append(lights, char.Vision(characterFocus, maze)))
+			newLights := []lighting.Lightsource{char.Vision(characterFocus, maze)}
+			// lighting.ApplyFog(dungeonStartPoint, maze, append(lights, char.Vision(characterFocus, maze)))
+			lighting.ApplyFog(dungeonStartPoint, maze, newLights)
 		}
 		log.Draw()
 		mapContext.Draw()

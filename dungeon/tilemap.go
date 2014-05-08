@@ -88,13 +88,13 @@ func (t *TileMap) fill(x, y, width, height int, value uint16) {
 	}
 }
 
-func (t *TileMap) FetchTile(x, y int) Tile {
-	var tile Tile
+func (t *TileMap) FetchTile(x, y int) *Tile {
+	var tile *Tile
 	if t.WithinRange(x, y) {
 		index := t.Tiles[x][y]
-		tile = Tiles[index]
+		tile = &Tiles[index]
 	} else {
-		tile = Tiles[FindTile("wall")]
+		tile = nil
 	}
 	return tile
 }
