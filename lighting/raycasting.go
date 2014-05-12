@@ -36,15 +36,26 @@ func (r *Raycaster) flushOverlay() {
 	}
 }
 
+var OCTANT_CALCULATIONS map[int][]int = map[int][]int{
+	0:  {1, 1, 1, 0},
+	1:  {1, -1, 1, 0},
+	2:  {-1, 1, 1, 0},
+	3:  {-1, -1, 1, 0},
+	4:  {1, 1, 0, 1},
+	5:  {1, -1, 0, 1},
+	6:  {-1, 1, 0, 1},
+	7:  {-1, -1, 0, 1},
+	8:  {1, 0, 1, 0},
+	9:  {0, 1, 1, 0},
+	10: {-1, 0, 0, 1},
+	11: {0, -1, 0, 1},
+}
+
 func (r *Raycaster) calculateFieldOfView(x, y, intensity int) {
-	r.doOctant(x, y, intensity, 1, 1, 1, 0)
-	r.doOctant(x, y, intensity, 1, -1, 1, 0)
-	r.doOctant(x, y, intensity, -1, 1, 1, 0)
-	r.doOctant(x, y, intensity, -1, -1, 1, 0)
-	r.doOctant(x, y, intensity, 1, 1, 0, 1)
-	r.doOctant(x, y, intensity, 1, -1, 0, 1)
-	r.doOctant(x, y, intensity, -1, 1, 0, 1)
-	r.doOctant(x, y, intensity, -1, -1, 0, 1)
+	for _, values := range OCTANT_CALCULATIONS {
+		sx, sy, dx, dy := values[0], values[1], values[2], values[3]
+		r.doOctant(x, y, intensity, sx, sy, dx, dy)
+	}
 }
 
 // Algorithm from Rogue Basin
@@ -54,11 +65,14 @@ func (r *Raycaster) doOctant(x, y, radius, sx, sy, dx, dy int) {
 		var lastTile *dungeon.Tile
 		var lastAdjacentTile *dungeon.Tile
 		for j := 0; j != radius; j++ {
-			tileX := x + (sx + i)
-			tileY := y + (sy + j)
+			tileX := x + (sx * i)
+			tileY := y + (sy * j)
+			if tileX >= r.maze.Width || tileX < 0 || tileY >= r.maze.Height || tileY < 0 {
+				break
+			}
 			tile := r.maze.FetchTile(tileX, tileY)
 
-			adjacentTile := r.maze.FetchTile(tileX-(sx+dx), tileY-(sy+dy))
+			adjacentTile := r.maze.FetchTile(tileX-(sx*dx), tileY-(sy*dy))
 			if lastTile != nil {
 				if lastTile.Name != "wall" {
 					r.overlay[tileX][tileY] = true
