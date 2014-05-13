@@ -20,12 +20,16 @@ func MakeRaycaster(maze *dungeon.TileMap) *Raycaster {
 }
 
 func (r *Raycaster) IsLighting(x, y int) bool {
-	return r.overlay[x][y]
+	return r.withinBounds(x, y) && r.overlay[x][y]
 }
 
 func (r *Raycaster) CastRays(x, y, intensity int) {
 	r.flushOverlay()
 	r.calculateFieldOfView(x, y, intensity)
+}
+
+func (r *Raycaster) withinBounds(x, y int) bool {
+	return x < r.maze.Width && x >= 0 && y < r.maze.Height && y >= 0
 }
 
 func (r *Raycaster) flushOverlay() {
@@ -67,7 +71,7 @@ func (r *Raycaster) doOctant(x, y, radius, sx, sy, dx, dy int) {
 		for j := 0; j != radius; j++ {
 			tileX := x + (sx * i)
 			tileY := y + (sy * j)
-			if tileX >= r.maze.Width || tileX < 0 || tileY >= r.maze.Height || tileY < 0 {
+			if !r.withinBounds(tileX, tileY) {
 				break
 			}
 			tile := r.maze.FetchTile(tileX, tileY)
