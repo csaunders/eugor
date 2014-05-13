@@ -74,18 +74,18 @@ func (r *Raycaster) doOctant(x, y, radius, sx, sy, dx, dy int) {
 
 			adjacentTile := r.maze.FetchTile(tileX-(sx*dx), tileY-(sy*dy))
 			if lastTile != nil {
-				if lastTile.Name != "wall" {
+				if lastTile.SeeThrough {
 					r.overlay[tileX][tileY] = true
 				} else {
-					if tileX <= 0 {
+					if tileX < 0 {
 						break
 					}
 
-					tileIsWall := tile != nil && tile.Name == "wall"
-					adjacentTileIsClear := adjacentTile != nil && adjacentTile.Name != "wall"
-					lastAdjacentTileIsClear := lastAdjacentTile != nil && lastAdjacentTile.Name != "wall"
+					tileIsOpaque := tile != nil && !tile.SeeThrough
+					adjacentTileIsClear := adjacentTile != nil && adjacentTile.SeeThrough
+					lastAdjacentTileIsClear := lastAdjacentTile != nil && lastAdjacentTile.SeeThrough
 
-					if tileIsWall && adjacentTileIsClear && lastAdjacentTileIsClear {
+					if tileIsOpaque && adjacentTileIsClear && lastAdjacentTileIsClear {
 						r.overlay[tileX][tileY] = true
 					} else {
 						break
