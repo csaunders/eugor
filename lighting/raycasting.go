@@ -65,10 +65,10 @@ func (r *Raycaster) calculateFieldOfView(x, y, intensity int) {
 // Algorithm from Rogue Basin
 // http://www.roguebasin.com/index.php?title=Ray-Tracing_Field-Of-View_Demo
 func (r *Raycaster) doOctant(x, y, radius, sx, sy, dx, dy int) {
-	for i := 0; i != radius; i++ {
+	for i := 0; i < radius; i++ {
 		var lastTile *dungeon.Tile
 		var lastAdjacentTile *dungeon.Tile
-		for j := 0; j != radius; j++ {
+		for j := 0; j < radius; j++ {
 			tileX := x + (sx * i)
 			tileY := y + (sy * j)
 			if !r.withinBounds(tileX, tileY) {

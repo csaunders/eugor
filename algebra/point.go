@@ -46,9 +46,9 @@ func DetermineDirection(source, dest Point) (dir Direction) {
 		}
 	} else {
 		if source.Y < dest.Y {
-			dir = North
-		} else {
 			dir = South
+		} else {
+			dir = North
 		}
 	}
 	return dir
