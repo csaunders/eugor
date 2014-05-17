@@ -1,6 +1,7 @@
 package lighting
 
 import (
+	"eugor/algebra"
 	"eugor/dungeon"
 	"math"
 )
@@ -40,64 +41,57 @@ func (r *Raycaster) flushOverlay() {
 	}
 }
 
-var OCTANT_CALCULATIONS map[int][]int = map[int][]int{
-	0:  {1, 1, 1, 0},
-	1:  {1, -1, 1, 0},
-	2:  {-1, 1, 1, 0},
-	3:  {-1, -1, 1, 0},
-	4:  {1, 1, 0, 1},
-	5:  {1, -1, 0, 1},
-	6:  {-1, 1, 0, 1},
-	7:  {-1, -1, 0, 1},
-	8:  {1, 0, 1, 0},
-	9:  {0, 1, 1, 0},
-	10: {-1, 0, 0, 1},
-	11: {0, -1, 0, 1},
+func (r *Raycaster) calculateFieldOfView(x, y, intensity int) {
+	r.overlay[x][y] = true
+	r.sendRays(x, y, float64(intensity))
 }
 
-func (r *Raycaster) calculateFieldOfView(x, y, intensity int) {
-	for _, values := range OCTANT_CALCULATIONS {
-		sx, sy, dx, dy := values[0], values[1], values[2], values[3]
-		r.doOctant(x, y, intensity, sx, sy, dx, dy)
+func (r *Raycaster) sendRays(fromX, fromY int, radius float64) {
+	for theta := 0.0; theta <= 2*math.Pi; theta = theta + (math.Pi / 128) {
+		toX := fromX + int(radius*math.Cos(theta))
+		toY := fromY + int(radius*math.Sin(theta))
+		r.doLine(fromX, fromY, toX, toY)
 	}
 }
 
-// Algorithm from Rogue Basin
-// http://www.roguebasin.com/index.php?title=Ray-Tracing_Field-Of-View_Demo
-func (r *Raycaster) doOctant(x, y, radius, sx, sy, dx, dy int) {
-	for i := 0; i < radius; i++ {
-		var lastTile *dungeon.Tile
-		var lastAdjacentTile *dungeon.Tile
-		for j := 0; j < radius; j++ {
-			tileX := x + (sx * i)
-			tileY := y + (sy * j)
-			if !r.withinBounds(tileX, tileY) {
-				break
-			}
-			tile := r.maze.FetchTile(tileX, tileY)
+func (r *Raycaster) doLine(x0, y0, x1, y1 int) {
+	deltaX := algebra.Abs(x1 - x0)
+	deltaY := algebra.Abs(y1 - y0)
+	stepX := 1
+	stepY := 1
+	if x0 >= x1 {
+		stepX = -1
+	}
+	if y0 >= y1 {
+		stepY = -1
+	}
+	deltaErr := deltaX - deltaY
+	for true {
+		if !r.assignVisibility(x0, y0) {
+			break
+		}
+		if x0 == x1 && y0 == y1 {
+			break
+		}
 
-			adjacentTile := r.maze.FetchTile(tileX-(sx*dx), tileY-(sy*dy))
-			if lastTile != nil {
-				if lastTile.SeeThrough {
-					r.overlay[tileX][tileY] = true
-				} else {
-					if tileX < 0 {
-						break
-					}
+		deltaErr2 := 2 * deltaErr
+		if deltaErr2 > -deltaY {
+			deltaErr -= deltaY
+			x0 += stepX
+		}
 
-					tileIsOpaque := tile != nil && !tile.SeeThrough
-					adjacentTileIsClear := adjacentTile != nil && adjacentTile.SeeThrough
-					lastAdjacentTileIsClear := lastAdjacentTile != nil && lastAdjacentTile.SeeThrough
-
-					if tileIsOpaque && adjacentTileIsClear && lastAdjacentTileIsClear {
-						r.overlay[tileX][tileY] = true
-					} else {
-						break
-					}
-				}
-			}
-			lastTile = tile
-			lastAdjacentTile = adjacentTile
+		if deltaErr2 < deltaX {
+			deltaErr += deltaX
+			y0 += stepY
 		}
 	}
+}
+
+func (r *Raycaster) assignVisibility(x, y int) bool {
+	if !r.withinBounds(x, y) {
+		return false
+	}
+	tile := r.maze.FetchTile(x, y)
+	r.overlay[x][y] = true
+	return tile.SeeThrough
 }
