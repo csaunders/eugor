@@ -17,9 +17,7 @@ func MakeWalker(maze *dungeon.TileMap) WalkerLogic {
 	return WalkerLogic{maze: maze, prng: prng}
 }
 
-func (w WalkerLogic) Scan() {}
-
-func (w WalkerLogic) Move(p algebra.Point) algebra.Point {
+func (w WalkerLogic) Move(p, player algebra.Point) algebra.Point {
 	x := w.generateAdjustment()
 	y := w.generateAdjustment()
 	newP := algebra.MakePoint(p.X+x, p.Y+y)

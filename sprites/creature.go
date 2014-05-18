@@ -6,8 +6,7 @@ import (
 )
 
 type CreatureLogic interface {
-	Scan()
-	Move(p algebra.Point) algebra.Point
+	Move(position algebra.Point, player algebra.Point) algebra.Point
 }
 
 type Creature struct {
@@ -22,8 +21,8 @@ func MakeCreature(x, y int, c termbox.Attribute, r rune) *Creature {
 	return &Creature{Position: p, Color: c, Icon: r, Ai: DumbAi{}}
 }
 
-func (c *Creature) Tick() {
-	c.Position = c.Ai.Move(c.Position)
+func (c *Creature) Tick(playerPosition algebra.Point) {
+	c.Position = c.Ai.Move(c.Position, playerPosition)
 }
 
 func (c *Creature) X() int {
@@ -40,9 +39,7 @@ func (c *Creature) DrawProjection(screenX, screenY, positionX, positionY int) {
 
 type DumbAi struct{}
 
-func (d DumbAi) Scan() {}
-
-func (d DumbAi) Move(p algebra.Point) algebra.Point {
+func (d DumbAi) Move(p, player algebra.Point) algebra.Point {
 	if p.X%2 == 0 {
 		p.X += 1
 	} else {

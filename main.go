@@ -51,13 +51,16 @@ func main() {
 
 	char := sprites.MakeCharacter(start.X, start.Y, termbox.ColorMagenta)
 	monsters := []*sprites.Creature{
-		sprites.MakeCreature(60, 15, termbox.ColorBlue, 'k'),
+		sprites.MakeCreature(60, 21, termbox.ColorBlue, 'k'),
 		sprites.MakeCreature(45, 15, termbox.ColorYellow, '%'),
 		sprites.MakeCreature(30, 25, termbox.ColorGreen, '?'),
 	}
 	ms := monsters[0]
 	ms.Ai = sprites.MakeWalker(maze)
 	monsters[0] = ms
+	ms = monsters[2]
+	ms.Ai = sprites.MakeRunner(maze)
+	monsters[2] = ms
 	monsterDrawers := make([]camera.Drawable, len(monsters))
 	for i, m := range monsters {
 		monsterDrawers[i] = m
@@ -85,7 +88,7 @@ func main() {
 			light.Tick()
 		}
 		for _, m := range monsters {
-			m.Tick()
+			m.Tick(char.Position())
 		}
 		event := termbox.PollEvent()
 		charPoint := algebra.MakePoint(char.X(), char.Y())
