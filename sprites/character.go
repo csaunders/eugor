@@ -30,6 +30,10 @@ func (c *Character) Y() int {
 	return c.y
 }
 
+func (c *Character) Position() algebra.Point {
+	return algebra.Point{X: c.x, Y: c.y}
+}
+
 func (c *Character) Draw() {
 	x, y := c.x, c.y
 	if c.DrawInCenter {

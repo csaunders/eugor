@@ -1,5 +1,7 @@
 package algebra
 
+import "math"
+
 type Direction string
 
 const (
@@ -68,4 +70,10 @@ func (p Point) Plus(other Point) Point {
 
 func (p Point) Minus(other Point) Point {
 	return MakePoint(p.X-other.X, p.Y-other.Y)
+}
+
+func (p Point) Distance(other Point) float64 {
+	dx := float64(Abs(p.X - other.X))
+	dy := float64(Abs(p.Y - other.Y))
+	return math.Sqrt(dx*dx + dy*dy)
 }
