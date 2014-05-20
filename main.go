@@ -21,27 +21,6 @@ func main() {
 	}
 	defer termbox.Close()
 
-	closeDoor := sprites.Interactable{
-		Name: "Close Door",
-		Test: func(p algebra.Point, d *dungeon.TileMap) bool {
-			tile := d.FetchTile(p.X, p.Y)
-			return d.CanInteractWith(p.X, p.Y) && tile.Name == "opendoor"
-		},
-		Action: func(p algebra.Point, d *dungeon.TileMap) {
-			d.Interact(p.X, p.Y)
-		},
-	}
-	openDoor := sprites.Interactable{
-		Name: "Open Door",
-		Test: func(p algebra.Point, d *dungeon.TileMap) bool {
-			tile := d.FetchTile(p.X, p.Y)
-			return d.CanInteractWith(p.X, p.Y) && tile.Name == "door"
-		},
-		Action: func(p algebra.Point, d *dungeon.TileMap) {
-			d.Interact(p.X, p.Y)
-		},
-	}
-
 	mapConfiguration := persistence.LoadTilemap("./persisted.tlm")
 	maze := mapConfiguration.Maze
 	lights := mapConfiguration.MazeLights
@@ -50,30 +29,16 @@ func main() {
 	start := mapConfiguration.PlayerStart
 
 	char := sprites.MakeCharacter(start.X, start.Y, termbox.ColorMagenta)
-	monsters := []*sprites.Creature{
-		sprites.MakeCreature(60, 21, termbox.ColorBlue, 'k'),
-		sprites.MakeCreature(45, 15, termbox.ColorYellow, '%'),
-		sprites.MakeCreature(30, 25, termbox.ColorGreen, '?'),
-	}
-	ms := monsters[0]
-	ms.Ai = sprites.MakeWalker(maze)
-	monsters[0] = ms
-	ms = monsters[2]
-	ms.Ai = sprites.MakeRunner(maze)
-	monsters[2] = ms
-	monsterDrawers := make([]camera.Drawable, len(monsters))
-	for i, m := range monsters {
-		monsterDrawers[i] = m
-	}
+
+	dungeonMaster := sprites.MakeDungeonMaster(char, maze)
+
 	log := logger.Logger{Render: false}
 
-	mapContext := &sprites.MapContext{TileMap: maze}
-	mapContext.AddInteraction(closeDoor)
-	mapContext.AddInteraction(openDoor)
+	mapContext := sprites.DefaultMapContext(maze)
 
 	for running {
 		termbox.Clear(termbox.ColorGreen, termbox.ColorBlack)
-		characterFocus, dungeonStartPoint, meta := camera.CameraDraw(maze, char, monsterDrawers)
+		characterFocus, dungeonStartPoint, meta := camera.CameraDraw(maze, char, dungeonMaster.Drawables())
 		emmiter.Update()
 		emmiter.Draw()
 		if fog {
@@ -87,9 +52,7 @@ func main() {
 		for _, light := range lights {
 			light.Tick()
 		}
-		for _, m := range monsters {
-			m.Tick(char.Position())
-		}
+		dungeonMaster.Tick(char.Position())
 		event := termbox.PollEvent()
 		charPoint := algebra.MakePoint(char.X(), char.Y())
 		switch {

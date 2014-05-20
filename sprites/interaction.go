@@ -22,6 +22,13 @@ type MapContext struct {
 	interactions        []Interactable
 }
 
+func DefaultMapContext(d *dungeon.TileMap) *MapContext {
+	context := &MapContext{TileMap: d}
+	context.AddInteraction(closeDoorHandler())
+	context.AddInteraction(openDoorHandler())
+	return context
+}
+
 func (m *MapContext) AddInteraction(i Interactable) {
 	m.interactions = append(m.interactions, i)
 }
@@ -121,4 +128,30 @@ func buildNameFromPoint(source, dest algebra.Point, name string) string {
 		destination = "¯\\(°_o)/¯"
 	}
 	return fmt.Sprintf("%s - %s", name, destination)
+}
+
+func openDoorHandler() Interactable {
+	return Interactable{
+		Name: "Open Door",
+		Test: func(p algebra.Point, d *dungeon.TileMap) bool {
+			tile := d.FetchTile(p.X, p.Y)
+			return d.CanInteractWith(p.X, p.Y) && tile.Name == "door"
+		},
+		Action: func(p algebra.Point, d *dungeon.TileMap) {
+			d.Interact(p.X, p.Y)
+		},
+	}
+}
+
+func closeDoorHandler() Interactable {
+	return Interactable{
+		Name: "Close Door",
+		Test: func(p algebra.Point, d *dungeon.TileMap) bool {
+			tile := d.FetchTile(p.X, p.Y)
+			return d.CanInteractWith(p.X, p.Y) && tile.Name == "opendoor"
+		},
+		Action: func(p algebra.Point, d *dungeon.TileMap) {
+			d.Interact(p.X, p.Y)
+		},
+	}
 }

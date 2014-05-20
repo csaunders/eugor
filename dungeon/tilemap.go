@@ -110,7 +110,8 @@ func (t *TileMap) WithinRange(x, y int) (within bool) {
 }
 
 func (t *TileMap) CanMoveTo(x, y int) bool {
-	return t.FetchTile(x, y).Walkable
+	tile := t.FetchTile(x, y)
+	return tile != nil && tile.Walkable
 }
 
 func (t *TileMap) CanInteractWith(x, y int) bool {

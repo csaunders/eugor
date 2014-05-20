@@ -9,7 +9,7 @@ type MonsterMaker func(x, y int, d *dungeon.TileMap) *Creature
 
 var Monsters map[string]MonsterMaker = map[string]MonsterMaker{
 	"kobold": func(x, y int, d *dungeon.TileMap) *Creature {
-		c := MakeCreature(x, y, termbox.ColorRed, 'k')
+		c := MakeCreature(x, y, termbox.ColorGreen, 'k')
 		c.Ai = MakeWalker(d)
 		return c
 	},
