@@ -33,6 +33,25 @@ func (dm *DungeonMaster) Drawables() (drawables []camera.Drawable) {
 	return
 }
 
+func (dm *DungeonMaster) Occupied(x, y int) bool {
+	m, _ := dm.retrieveMonster(x, y)
+	return m != nil
+}
+
+func (dm *DungeonMaster) Interact(x, y int, char *Character) bool {
+	m, i := dm.retrieveMonster(x, y)
+	if m == nil {
+		return false
+	}
+	_, isHit := Attack(char.AttackAttribute(), DefenseAttribute{armorClass: 12})
+	if isHit {
+		dm.monsters[i] = dm.monsters[len(dm.monsters)-1]
+		dm.monsters = dm.monsters[0 : len(dm.monsters)-1]
+		return true
+	}
+	return false
+}
+
 func populateDungeon(d *dungeon.TileMap, difficulty int) []*Creature {
 	prng := rand.New(rand.NewSource(time.Now().UnixNano()))
 	names := MonsterNames()
@@ -43,6 +62,15 @@ func populateDungeon(d *dungeon.TileMap, difficulty int) []*Creature {
 		monsters[i] = m
 	}
 	return monsters
+}
+
+func (dm *DungeonMaster) retrieveMonster(x, y int) (*Creature, int) {
+	for i, m := range dm.monsters {
+		if m.X() == x && m.Y() == y {
+			return m, i
+		}
+	}
+	return nil, -1
 }
 
 func genMonster(name string, d *dungeon.TileMap, prng *rand.Rand) *Creature {

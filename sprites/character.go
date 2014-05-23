@@ -80,3 +80,7 @@ func (c *Character) IsMovementEvent(e termbox.Event) bool {
 	}
 	return false
 }
+
+func (c *Character) AttackAttribute() AttackAttribute {
+	return AttackAttribute{numDice: 1, dieType: d4, damageModifier: 2, hitModifier: 0}
+}

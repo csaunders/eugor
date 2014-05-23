@@ -6,7 +6,6 @@ import (
 	"eugor/dungeon"
 	"eugor/lighting"
 	"eugor/logger"
-	"eugor/particles"
 	"eugor/persistence"
 	"eugor/sprites"
 	"fmt"
@@ -25,7 +24,6 @@ func main() {
 	maze := mapConfiguration.Maze
 	lights := mapConfiguration.MazeLights
 
-	emmiter := particles.MakeEmmiter(algebra.MakePoint(30, 10), 5)
 	start := mapConfiguration.PlayerStart
 
 	char := sprites.MakeCharacter(start.X, start.Y, termbox.ColorMagenta)
@@ -36,11 +34,16 @@ func main() {
 
 	mapContext := sprites.DefaultMapContext(maze)
 
+	updateWorld := func() {
+		for _, light := range lights {
+			light.Tick()
+		}
+		dungeonMaster.Tick(char.Position())
+	}
+
 	for running {
 		termbox.Clear(termbox.ColorGreen, termbox.ColorBlack)
 		characterFocus, dungeonStartPoint, meta := camera.CameraDraw(maze, char, dungeonMaster.Drawables())
-		emmiter.Update()
-		emmiter.Draw()
 		if fog {
 			newLights := []lighting.Lightsource{char.Vision(characterFocus, maze)}
 			// lighting.ApplyFog(dungeonStartPoint, maze, append(lights, char.Vision(characterFocus, maze)))
@@ -49,10 +52,6 @@ func main() {
 		log.Draw()
 		mapContext.Draw()
 		termbox.Flush()
-		for _, light := range lights {
-			light.Tick()
-		}
-		dungeonMaster.Tick(char.Position())
 		event := termbox.PollEvent()
 		charPoint := algebra.MakePoint(char.X(), char.Y())
 		switch {
@@ -64,11 +63,19 @@ func main() {
 			mapContext.HandleInput(charPoint, event)
 		case char.IsMovementEvent(event):
 			x, y := char.PredictedMovement(event.Key)
-			if maze.CanMoveTo(x, y) {
+			if maze.CanMoveTo(x, y) && !dungeonMaster.Occupied(x, y) {
 				char.Move(event.Key)
+			} else if maze.CanMoveTo(x, y) && dungeonMaster.Occupied(x, y) {
+				didHit := dungeonMaster.Interact(x, y, char)
+				if didHit {
+					log = log.AppendEvent(logger.Event{LogLevel: logger.Info, Message: "Creature has been defeated!"})
+				} else {
+					log = log.AppendEvent(logger.Event{LogLevel: logger.Info, Message: "Womp Womp, you missed :'("})
+				}
 			} else if maze.CanInteractWith(x, y) {
 				maze.Interact(x, y)
 			}
+			updateWorld()
 		case event.Ch == 'l':
 			event := logger.Event{LogLevel: logger.Info, Message: fmt.Sprintf("Character Position: (%d, %d)", char.X(), char.Y())}
 			log = log.AppendEvent(event)
