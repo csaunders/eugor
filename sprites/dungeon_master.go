@@ -43,7 +43,10 @@ func (dm *DungeonMaster) Interact(x, y int, char *Character) bool {
 	if m == nil {
 		return false
 	}
-	_, isHit := Attack(char.AttackAttribute(), DefenseAttribute{armorClass: 12})
+
+	attack := char.AttackAttribute()
+	defense := Ability{Name: "dodge", Modifier: "dex", SuccessRate: 50}
+	isHit := attack.Challenge(defense)
 	if isHit {
 		dm.monsters[i] = dm.monsters[len(dm.monsters)-1]
 		dm.monsters = dm.monsters[0 : len(dm.monsters)-1]

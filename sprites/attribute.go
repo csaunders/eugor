@@ -7,8 +7,9 @@ import (
 type DieType int
 
 const (
-	d20 DieType = 20
-	d2  DieType = (2 * iota)
+	d100 DieType = 100
+	d20  DieType = 20
+	d2   DieType = (2 * iota)
 	d4
 	d6
 	d8
@@ -16,31 +17,41 @@ const (
 	d12
 )
 
-type Attribute struct {
-	currentHp    int
-	maxHp        int
-	strength     int
-	dexterity    int
-	constitution int
+type CharacterAttributes struct {
+	currentHp      int
+	maxHp          int
+	coreAttributes map[string]int
+	abilities      map[string]Ability
 }
 
-type AttackAttribute struct {
-	numDice        int
-	dieType        DieType
-	damageModifier int
-	hitModifier    int
+type Ability struct {
+	Name        string
+	Modifier    string
+	SuccessRate int
+	Constant    bool
 }
 
-type DefenseAttribute struct {
-	armorClass int
+func (a Ability) Challenge(other Ability) (didSucceed bool) {
+	didSucceed = false
+	success, value := a.Roll()
+	otherSuccess, otherValue := other.Roll()
+	if success {
+		didSucceed = true
+		if otherSuccess {
+			didSucceed = value > otherValue
+		}
+	}
+	return
 }
 
-func Attack(attack AttackAttribute, defense DefenseAttribute) (damage int, didHit bool) {
-	damage = 0
-	didHit = false
-	if roll(d20, 1)+attack.hitModifier > defense.armorClass {
-		damage = roll(attack.dieType, attack.numDice) + attack.damageModifier
-		didHit = true
+func (a Ability) Roll() (success bool, value int) {
+	success = true
+
+	if a.Constant {
+		value = a.SuccessRate
+	} else {
+		value = roll(d100, 1)
+		success = value > (100 - a.SuccessRate)
 	}
 	return
 }

@@ -81,6 +81,6 @@ func (c *Character) IsMovementEvent(e termbox.Event) bool {
 	return false
 }
 
-func (c *Character) AttackAttribute() AttackAttribute {
-	return AttackAttribute{numDice: 1, dieType: d4, damageModifier: 2, hitModifier: 0}
+func (c *Character) AttackAttribute() Ability {
+	return Ability{Name: "dagger", Modifier: "str", SuccessRate: 40}
 }
