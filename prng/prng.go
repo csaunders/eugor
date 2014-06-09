@@ -6,9 +6,13 @@ import (
 )
 
 var seed int64 = -1
+var prng *rand.Rand
 
 func MakePrng() *rand.Rand {
-	return rand.New(rand.NewSource(Seed()))
+	if prng == nil {
+		prng = rand.New(rand.NewSource(Seed()))
+	}
+	return prng
 }
 
 func Seed() int64 {

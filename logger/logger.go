@@ -13,7 +13,9 @@ type Logger struct {
 	Render bool
 }
 
-func (l Logger) Append(e termbox.Event) Logger {
+var GlobalLog = &Logger{}
+
+func (l *Logger) Append(e termbox.Event) {
 	var message string
 	switch e.Key {
 	default:
@@ -28,22 +30,20 @@ func (l Logger) Append(e termbox.Event) Logger {
 		message = string('→')
 	}
 	event := Event{LogLevel: Info, Message: fmt.Sprintf("Received event %s", message)}
-	return l.AppendEvent(event)
+	l.AppendEvent(event)
 }
 
-func (l Logger) AppendEvent(event Event) Logger {
+func (l *Logger) AppendEvent(event Event) {
 	l.events = append(l.events, nilEvent)
 	copy(l.events[1:], l.events[0:])
 	l.events[0] = event
-	return l
 }
 
-func (l Logger) ToggleRender() Logger {
+func (l *Logger) ToggleRender() {
 	l.Render = !l.Render
-	return l
 }
 
-func (l Logger) Draw() {
+func (l *Logger) Draw() {
 	if l.Render == false {
 		return
 	}
@@ -52,22 +52,22 @@ func (l Logger) Draw() {
 	l.drawBorder()
 }
 
-func (l Logger) StartingY() int {
+func (l *Logger) StartingY() int {
 	_, height := termbox.Size()
 	return height - (height / 4)
 }
 
-func (l Logger) clear() {
+func (l *Logger) clear() {
 	width, height := termbox.Size()
 	termboxext.Fill(0, l.StartingY(), width, height/4, ' ', termbox.ColorCyan, termbox.ColorBlack)
 }
 
-func (l Logger) drawBorder() {
+func (l *Logger) drawBorder() {
 	width, height := termbox.Size()
 	termboxext.DrawSimpleBox(0, l.StartingY(), width, height/4, termbox.ColorCyan, termbox.ColorBlack)
 }
 
-func (l Logger) drawLogEvents() {
+func (l *Logger) drawLogEvents() {
 	startingY := l.StartingY() + 1
 	if len(l.events) == 0 {
 		termboxext.DrawString(1, startingY, "There is nothing to log", termbox.ColorWhite, termbox.ColorBlack)

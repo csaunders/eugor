@@ -1,7 +1,9 @@
 package sprites
 
 import (
+	"eugor/logger"
 	"eugor/prng"
+	"fmt"
 )
 
 type DieType int
@@ -41,7 +43,9 @@ func (a Ability) Challenge(other Ability) (didSucceed bool) {
 			didSucceed = value > otherValue
 		}
 	}
-	return
+	event := logger.Event{LogLevel: logger.Debug, Message: fmt.Sprintf("attacker: {h: %t, r: %d}, defender: {h: %t, r: %d}", success, value, otherSuccess, otherValue)}
+	logger.GlobalLog.AppendEvent(event)
+	return didSucceed
 }
 
 func (a Ability) Roll() (success bool, value int) {
