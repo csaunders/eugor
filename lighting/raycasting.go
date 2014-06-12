@@ -25,7 +25,7 @@ func (r *Raycaster) IsLighting(x, y int) bool {
 }
 
 func (r *Raycaster) CastRays(x, y, intensity int) {
-	r.flushOverlay()
+	r.FlushOverlay()
 	r.calculateFieldOfView(x, y, intensity)
 }
 
@@ -33,7 +33,7 @@ func (r *Raycaster) withinBounds(x, y int) bool {
 	return x < r.maze.Width && x >= 0 && y < r.maze.Height && y >= 0
 }
 
-func (r *Raycaster) flushOverlay() {
+func (r *Raycaster) FlushOverlay() {
 	for x := range r.overlay {
 		for y := range r.overlay[x] {
 			r.overlay[x][y] = false
@@ -50,11 +50,11 @@ func (r *Raycaster) sendRays(fromX, fromY int, radius float64) {
 	for theta := 0.0; theta <= 2*math.Pi; theta = theta + (math.Pi / 128) {
 		toX := fromX + int(radius*math.Cos(theta))
 		toY := fromY + int(radius*math.Sin(theta))
-		r.doLine(fromX, fromY, toX, toY)
+		r.DoLine(fromX, fromY, toX, toY)
 	}
 }
 
-func (r *Raycaster) doLine(x0, y0, x1, y1 int) {
+func (r *Raycaster) DoLine(x0, y0, x1, y1 int) {
 	deltaX := algebra.Abs(x1 - x0)
 	deltaY := algebra.Abs(y1 - y0)
 	stepX := 1

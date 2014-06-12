@@ -18,6 +18,11 @@ var Monsters map[string]MonsterMaker = map[string]MonsterMaker{
 		c.Ai = MakeRunner(d)
 		return c
 	},
+	"goblin": func(x, y int, d *dungeon.TileMap) *Creature {
+		c := MakeCreature(x, y, termbox.ColorCyan, 'g')
+		c.Ai = MakeHunter(d)
+		return c
+	},
 }
 
 var MonsterKeys []string
