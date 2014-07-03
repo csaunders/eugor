@@ -3,8 +3,8 @@ package sprites
 import (
 	"eugor/algebra"
 	"eugor/dungeon"
-	"eugor/termboxext"
 	"fmt"
+	"github.com/csaunders/windeau"
 	"github.com/nsf/termbox-go"
 )
 
@@ -15,17 +15,20 @@ type Interactable struct {
 }
 
 type MapContext struct {
+	windeau.EventHandler
 	TileMap             *dungeon.TileMap
 	render              bool
 	cursor              int
 	currentInteractions map[string]algebra.Point
 	interactions        []Interactable
+	view                *windeau.Scrollview
 }
 
 func DefaultMapContext(d *dungeon.TileMap) *MapContext {
-	context := &MapContext{TileMap: d}
+	context := &MapContext{TileMap: d, cursor: 0}
 	context.AddInteraction(closeDoorHandler())
 	context.AddInteraction(openDoorHandler())
+	context.view = windeau.MakeScrollview(buildWindow(), []string{}, context)
 	return context
 }
 
@@ -35,9 +38,11 @@ func (m *MapContext) AddInteraction(i Interactable) {
 
 func (m *MapContext) Toggle(point algebra.Point) {
 	m.render = !m.render
+	m.view.Parent.SetFocused(m.render)
 	m.cursor = 0
 	if m.render {
 		m.currentInteractions = m.Interactions(point)
+		m.updateView()
 	}
 }
 
@@ -48,9 +53,9 @@ func (m *MapContext) IsFocused() bool {
 func (m *MapContext) HandleInput(point algebra.Point, event termbox.Event) {
 	switch event.Key {
 	case termbox.KeyArrowUp:
-		m.cursor = (m.cursor - 1) % len(m.interactions)
+		m.cursor -= 1
 	case termbox.KeyArrowDown:
-		m.cursor = (m.cursor + 1) % len(m.interactions)
+		m.cursor += 1
 	case termbox.KeyEnter:
 		i := 0
 		for _, p := range m.currentInteractions {
@@ -62,23 +67,14 @@ func (m *MapContext) HandleInput(point algebra.Point, event termbox.Event) {
 		}
 		m.Toggle(point)
 	}
+	m.cursor = m.view.SetPosition(m.cursor)
 }
 
 func (m *MapContext) Draw() {
 	if !m.render {
 		return
 	}
-
-	termboxext.Fill(0, 0, 50, 20, ' ', termbox.ColorBlack, termbox.ColorBlack)
-	termboxext.DrawSimpleBox(0, 0, 50, 20, termbox.ColorGreen, termbox.ColorBlack)
-	y := 1
-	for name, _ := range m.currentInteractions {
-		if m.cursor+1 == y {
-			termboxext.DrawString(1, y, "*", termbox.ColorMagenta, termbox.ColorBlack)
-		}
-		termboxext.DrawString(2, y, name, termbox.ColorGreen, termbox.ColorBlack)
-		y++
-	}
+	m.view.Draw()
 }
 
 func (m *MapContext) Interactions(point algebra.Point) map[string]algebra.Point {
@@ -101,16 +97,28 @@ func (m *MapContext) PerformInteraction(point algebra.Point) {
 }
 
 func (m *MapContext) interactables(point algebra.Point) map[algebra.Point]Interactable {
-	result := make(map[algebra.Point]Interactable)
+	interactables := make(map[algebra.Point]Interactable)
 	points := algebra.MakePoints(point, []string{"up", "down", "left", "right"})
 	for _, interactable := range m.interactions {
 		for _, p := range points {
 			if interactable.Test(p, m.TileMap) {
-				result[p] = interactable
+				interactables[p] = interactable
 			}
 		}
 	}
-	return result
+	return interactables
+}
+
+func (m *MapContext) updateView() {
+	entries := make([]string, len(m.currentInteractions))
+	i := 0
+	for name, _ := range m.currentInteractions {
+		entries[i] = name
+		i++
+	}
+	m.cursor = 0
+	m.view.SetPosition(m.cursor)
+	m.view.Entries = entries
 }
 
 func buildNameFromPoint(source, dest algebra.Point, name string) string {
@@ -154,4 +162,10 @@ func closeDoorHandler() Interactable {
 			d.Interact(p.X, p.Y)
 		},
 	}
+}
+
+func buildWindow() *windeau.FocusableWindow {
+	on := windeau.WindowState{termbox.ColorWhite, termbox.ColorDefault}
+	border := windeau.MakeSimpleBorder('+', '|', '-')
+	return windeau.MakeFocusableWindow(0, 0, 20, 6, on, on, border)
 }
