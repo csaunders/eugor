@@ -5,7 +5,6 @@ import (
 	"errors"
 	"eugor/algebra"
 	"eugor/dungeon"
-	"eugor/lighting"
 	"fmt"
 	"log"
 	"os"
@@ -20,7 +19,6 @@ const (
 	Continue
 	Header
 	Player
-	LightSources
 	Layer
 )
 
@@ -43,9 +41,6 @@ func LoadTilemap(filename string) MapData {
 		case Player:
 			data.PlayerStart, line = extractPlayerDetails(scanner)
 			fmt.Println("Player Overview has been Extracted")
-		case LightSources:
-			data.MazeLights, line = extractLightSources(scanner)
-			fmt.Println("Light Sources have been Extracted")
 		case Layer:
 			var layer LayerInformation
 			layer, line = extractLayerInformation(scanner)
@@ -112,30 +107,6 @@ func extractPlayerDetails(scanner *bufio.Scanner) (algebra.Point, string) {
 	return algebra.MakePoint(x, y), ""
 }
 
-func extractLightSources(scanner *bufio.Scanner) ([]lighting.Lightsource, string) {
-	lights := []lighting.Lightsource{}
-	for true {
-		line := scanner.Text()
-		if determineState(line) == Unknown {
-			break
-		}
-		splitLine := strings.Split(line, ",")
-		if len(splitLine) > 3 {
-			log.Fatal(errors.New(fmt.Sprintf("Invalid light source information for %s", line)))
-		}
-		switch splitLine[0] {
-		case "torch":
-			x, _ := strconv.ParseInt(splitLine[1], 10, 64)
-			y, _ := strconv.ParseInt(splitLine[2], 10, 64)
-			torch := lighting.NewTorch(int(x), int(y))
-			lights = append(lights, torch)
-		}
-
-		scanner.Scan()
-	}
-	return lights, ""
-}
-
 func extractLayerInformation(scanner *bufio.Scanner) (LayerInformation, string) {
 	layer := LayerInformation{}
 	scanning := true
@@ -170,8 +141,6 @@ func determineState(line string) TileMapParserState {
 		return Header
 	case "[player]":
 		return Player
-	case "[lightsources]":
-		return LightSources
 	case "[layer]":
 		return Layer
 	case "":

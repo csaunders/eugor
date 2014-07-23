@@ -6,12 +6,6 @@ height=250
 x=10
 y=20
 
-[lightsources]
-torch,30,40
-torch,50,60
-torch,10,15
-torch,15,25
-
 [layer]
 type=map
 data=
