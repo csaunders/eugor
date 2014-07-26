@@ -1,7 +1,7 @@
 package sprites
 
 import (
-	"eugor/algebra"
+	"eugor"
 	"eugor/dungeon"
 	"eugor/lighting"
 )
@@ -15,7 +15,7 @@ func MakeHunter(maze *dungeon.TileMap) HunterLogic {
 	return HunterLogic{caster: caster}
 }
 
-func (h HunterLogic) Move(p, player algebra.Point) algebra.Point {
+func (h HunterLogic) Move(p, player eugor.Point) eugor.Point {
 	h.caster.FlushOverlay()
 	h.caster.DoLine(p.X, p.Y, player.X, player.Y)
 	if h.caster.IsLighting(player.X, player.Y) {
@@ -24,7 +24,7 @@ func (h HunterLogic) Move(p, player algebra.Point) algebra.Point {
 	return p
 }
 
-func (h HunterLogic) moveToward(p, player algebra.Point) algebra.Point {
+func (h HunterLogic) moveToward(p, player eugor.Point) eugor.Point {
 	x, y := p.X, p.Y
 	if p.X < player.X {
 		x += 1
@@ -41,5 +41,5 @@ func (h HunterLogic) moveToward(p, player algebra.Point) algebra.Point {
 	if x == player.X && y == player.Y {
 		return p
 	}
-	return algebra.MakePoint(x, y)
+	return eugor.MakePoint(x, y)
 }

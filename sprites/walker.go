@@ -1,7 +1,7 @@
 package sprites
 
 import (
-	"eugor/algebra"
+	"eugor"
 	"eugor/dungeon"
 	"math/rand"
 	"time"
@@ -17,10 +17,10 @@ func MakeWalker(maze *dungeon.TileMap) WalkerLogic {
 	return WalkerLogic{maze: maze, prng: prng}
 }
 
-func (w WalkerLogic) Move(p, player algebra.Point) algebra.Point {
+func (w WalkerLogic) Move(p, player eugor.Point) eugor.Point {
 	x := w.generateAdjustment()
 	y := w.generateAdjustment()
-	newP := algebra.MakePoint(p.X+x, p.Y+y)
+	newP := eugor.MakePoint(p.X+x, p.Y+y)
 	if w.maze.CanMoveTo(newP.X, newP.Y) {
 		return newP
 	}

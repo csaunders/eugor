@@ -1,4 +1,4 @@
-package logger
+package eugor
 
 import (
 	"eugor/termboxext"

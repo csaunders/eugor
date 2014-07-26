@@ -3,7 +3,7 @@ package persistence
 import (
 	"bufio"
 	"errors"
-	"eugor/algebra"
+	"eugor"
 	"eugor/dungeon"
 	"fmt"
 	"log"
@@ -84,7 +84,7 @@ func prepareMaze(scanner *bufio.Scanner) (*dungeon.TileMap, string) {
 	return dungeon.NewTileMap(width, height), ""
 }
 
-func extractPlayerDetails(scanner *bufio.Scanner) (algebra.Point, string) {
+func extractPlayerDetails(scanner *bufio.Scanner) (eugor.Point, string) {
 	var x, y int = 0, 0
 	for true {
 		line := scanner.Text()
@@ -104,7 +104,7 @@ func extractPlayerDetails(scanner *bufio.Scanner) (algebra.Point, string) {
 		}
 		scanner.Scan()
 	}
-	return algebra.MakePoint(x, y), ""
+	return eugor.MakePoint(x, y), ""
 }
 
 func extractLayerInformation(scanner *bufio.Scanner) (LayerInformation, string) {

@@ -1,8 +1,7 @@
 package sprites
 
 import (
-	"eugor/algebra"
-	"eugor/camera"
+	"eugor"
 	"eugor/dungeon"
 	"math/rand"
 	"time"
@@ -19,14 +18,14 @@ func MakeDungeonMaster(character *Character, d *dungeon.TileMap) *DungeonMaster 
 	return dm
 }
 
-func (dm *DungeonMaster) Tick(playerPosition algebra.Point) {
+func (dm *DungeonMaster) Tick(playerPosition eugor.Point) {
 	for _, m := range dm.monsters {
 		m.Tick(playerPosition)
 	}
 }
 
-func (dm *DungeonMaster) Drawables() (drawables []camera.Drawable) {
-	drawables = make([]camera.Drawable, len(dm.monsters))
+func (dm *DungeonMaster) Drawables() (drawables []eugor.Drawable) {
+	drawables = make([]eugor.Drawable, len(dm.monsters))
 	for i, m := range dm.monsters {
 		drawables[i] = m
 	}

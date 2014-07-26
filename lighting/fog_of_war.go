@@ -1,7 +1,7 @@
 package lighting
 
 import (
-	"eugor/algebra"
+	"eugor"
 	"eugor/dungeon"
 	"github.com/nsf/termbox-go"
 )
@@ -43,7 +43,7 @@ func (m *MapMemory) isRemembered(x, y int) bool {
 
 var memory *MapMemory
 
-func ApplyFog(p algebra.Point, d *dungeon.TileMap, lights []Lightsource) {
+func ApplyFog(p eugor.Point, d *dungeon.TileMap, lights []Lightsource) {
 	if memory == nil {
 		memory = makeMapMemory(d)
 	}

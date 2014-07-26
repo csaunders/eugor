@@ -1,7 +1,7 @@
 package lighting
 
 import (
-	"eugor/algebra"
+	"eugor"
 	"eugor/dungeon"
 	"math"
 )
@@ -55,8 +55,8 @@ func (r *Raycaster) sendRays(fromX, fromY int, radius float64) {
 }
 
 func (r *Raycaster) DoLine(x0, y0, x1, y1 int) {
-	deltaX := algebra.Abs(x1 - x0)
-	deltaY := algebra.Abs(y1 - y0)
+	deltaX := eugor.Abs(x1 - x0)
+	deltaY := eugor.Abs(y1 - y0)
 	stepX := 1
 	stepY := 1
 	if x0 >= x1 {

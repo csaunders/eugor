@@ -1,7 +1,7 @@
 package sprites
 
 import (
-	"eugor/algebra"
+	"eugor"
 	"eugor/dungeon"
 	"fmt"
 	"github.com/csaunders/windeau"
@@ -9,8 +9,8 @@ import (
 )
 
 type Interactable struct {
-	Test   func(point algebra.Point, tileMap *dungeon.TileMap) bool
-	Action func(point algebra.Point, tileMap *dungeon.TileMap)
+	Test   func(point eugor.Point, tileMap *dungeon.TileMap) bool
+	Action func(point eugor.Point, tileMap *dungeon.TileMap)
 	Name   string
 }
 
@@ -19,7 +19,7 @@ type MapContext struct {
 	TileMap             *dungeon.TileMap
 	render              bool
 	cursor              int
-	currentInteractions map[string]algebra.Point
+	currentInteractions map[string]eugor.Point
 	interactions        []Interactable
 	view                *windeau.Scrollview
 }
@@ -36,7 +36,7 @@ func (m *MapContext) AddInteraction(i Interactable) {
 	m.interactions = append(m.interactions, i)
 }
 
-func (m *MapContext) Toggle(point algebra.Point) {
+func (m *MapContext) Toggle(point eugor.Point) {
 	m.render = !m.render
 	m.view.Parent.SetFocused(m.render)
 	m.cursor = 0
@@ -50,7 +50,7 @@ func (m *MapContext) IsFocused() bool {
 	return m.render
 }
 
-func (m *MapContext) HandleInput(point algebra.Point, event termbox.Event) {
+func (m *MapContext) HandleInput(point eugor.Point, event termbox.Event) {
 	switch event.Key {
 	case termbox.KeyArrowUp:
 		m.cursor -= 1
@@ -77,9 +77,9 @@ func (m *MapContext) Draw() {
 	m.view.Draw()
 }
 
-func (m *MapContext) Interactions(point algebra.Point) map[string]algebra.Point {
+func (m *MapContext) Interactions(point eugor.Point) map[string]eugor.Point {
 	availableActions := m.interactables(point)
-	result := make(map[string]algebra.Point)
+	result := make(map[string]eugor.Point)
 	for p, interaction := range availableActions {
 		name := buildNameFromPoint(point, p, interaction.Name)
 		result[name] = p
@@ -87,7 +87,7 @@ func (m *MapContext) Interactions(point algebra.Point) map[string]algebra.Point 
 	return result
 }
 
-func (m *MapContext) PerformInteraction(point algebra.Point) {
+func (m *MapContext) PerformInteraction(point eugor.Point) {
 	for _, i := range m.interactions {
 		if i.Test(point, m.TileMap) {
 			i.Action(point, m.TileMap)
@@ -96,9 +96,9 @@ func (m *MapContext) PerformInteraction(point algebra.Point) {
 	}
 }
 
-func (m *MapContext) interactables(point algebra.Point) map[algebra.Point]Interactable {
-	interactables := make(map[algebra.Point]Interactable)
-	points := algebra.MakePoints(point, []string{"up", "down", "left", "right"})
+func (m *MapContext) interactables(point eugor.Point) map[eugor.Point]Interactable {
+	interactables := make(map[eugor.Point]Interactable)
+	points := eugor.MakePoints(point, []string{"up", "down", "left", "right"})
 	for _, interactable := range m.interactions {
 		for _, p := range points {
 			if interactable.Test(p, m.TileMap) {
@@ -121,16 +121,16 @@ func (m *MapContext) updateView() {
 	m.view.Entries = entries
 }
 
-func buildNameFromPoint(source, dest algebra.Point, name string) string {
+func buildNameFromPoint(source, dest eugor.Point, name string) string {
 	var destination string
-	switch algebra.DetermineDirection(source, dest) {
-	case algebra.North:
+	switch eugor.DetermineDirection(source, dest) {
+	case eugor.North:
 		destination = "North"
-	case algebra.South:
+	case eugor.South:
 		destination = "South"
-	case algebra.East:
+	case eugor.East:
 		destination = "East"
-	case algebra.West:
+	case eugor.West:
 		destination = "West"
 	default:
 		destination = "¯\\(°_o)/¯"
@@ -141,11 +141,11 @@ func buildNameFromPoint(source, dest algebra.Point, name string) string {
 func openDoorHandler() Interactable {
 	return Interactable{
 		Name: "Open Door",
-		Test: func(p algebra.Point, d *dungeon.TileMap) bool {
+		Test: func(p eugor.Point, d *dungeon.TileMap) bool {
 			tile := d.FetchTile(p.X, p.Y)
 			return d.CanInteractWith(p.X, p.Y) && tile.Name == "door"
 		},
-		Action: func(p algebra.Point, d *dungeon.TileMap) {
+		Action: func(p eugor.Point, d *dungeon.TileMap) {
 			d.Interact(p.X, p.Y)
 		},
 	}
@@ -154,11 +154,11 @@ func openDoorHandler() Interactable {
 func closeDoorHandler() Interactable {
 	return Interactable{
 		Name: "Close Door",
-		Test: func(p algebra.Point, d *dungeon.TileMap) bool {
+		Test: func(p eugor.Point, d *dungeon.TileMap) bool {
 			tile := d.FetchTile(p.X, p.Y)
 			return d.CanInteractWith(p.X, p.Y) && tile.Name == "opendoor"
 		},
-		Action: func(p algebra.Point, d *dungeon.TileMap) {
+		Action: func(p eugor.Point, d *dungeon.TileMap) {
 			d.Interact(p.X, p.Y)
 		},
 	}

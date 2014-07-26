@@ -1,27 +1,27 @@
 package sprites
 
 import (
-	"eugor/algebra"
+	"eugor"
 	"github.com/nsf/termbox-go"
 )
 
 type CreatureLogic interface {
-	Move(position algebra.Point, player algebra.Point) algebra.Point
+	Move(position eugor.Point, player eugor.Point) eugor.Point
 }
 
 type Creature struct {
-	Position algebra.Point
+	Position eugor.Point
 	Color    termbox.Attribute
 	Icon     rune
 	Ai       CreatureLogic
 }
 
 func MakeCreature(x, y int, c termbox.Attribute, r rune) *Creature {
-	p := algebra.MakePoint(x, y)
+	p := eugor.MakePoint(x, y)
 	return &Creature{Position: p, Color: c, Icon: r, Ai: DumbAi{}}
 }
 
-func (c *Creature) Tick(playerPosition algebra.Point) {
+func (c *Creature) Tick(playerPosition eugor.Point) {
 	c.Position = c.Ai.Move(c.Position, playerPosition)
 }
 
@@ -39,7 +39,7 @@ func (c *Creature) DrawProjection(screenX, screenY, positionX, positionY int) {
 
 type DumbAi struct{}
 
-func (d DumbAi) Move(p, player algebra.Point) algebra.Point {
+func (d DumbAi) Move(p, player eugor.Point) eugor.Point {
 	if p.X%2 == 0 {
 		p.X += 1
 	} else {

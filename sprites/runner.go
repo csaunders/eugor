@@ -1,7 +1,7 @@
 package sprites
 
 import (
-	"eugor/algebra"
+	"eugor"
 	"eugor/dungeon"
 )
 
@@ -13,7 +13,7 @@ func MakeRunner(d *dungeon.TileMap) RunnerLogic {
 	return RunnerLogic{maze: d}
 }
 
-func (r RunnerLogic) Move(p, player algebra.Point) algebra.Point {
+func (r RunnerLogic) Move(p, player eugor.Point) eugor.Point {
 	x := p.X
 	y := p.Y
 	if p.Distance(player) > 3 {
@@ -31,7 +31,7 @@ func (r RunnerLogic) Move(p, player algebra.Point) algebra.Point {
 		y += 1
 	}
 	if r.maze.CanMoveTo(x, y) {
-		return algebra.Point{X: x, Y: y}
+		return eugor.Point{X: x, Y: y}
 	}
 	return p
 }

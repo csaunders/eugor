@@ -1,7 +1,7 @@
 package persistence
 
 import (
-	"eugor/algebra"
+	"eugor"
 	"eugor/dungeon"
 	"eugor/lighting"
 	"fmt"
@@ -10,7 +10,7 @@ import (
 
 type MapData struct {
 	Maze        *dungeon.TileMap
-	PlayerStart algebra.Point
+	PlayerStart eugor.Point
 	MazeLights  []lighting.Lightsource
 }
 

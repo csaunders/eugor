@@ -1,4 +1,4 @@
-package algebra
+package eugor
 
 func Abs(num int) int {
 	if num < 0 {

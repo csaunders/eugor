@@ -1,8 +1,7 @@
 package sprites
 
 import (
-	"eugor/logger"
-	"eugor/prng"
+	"eugor"
 	"fmt"
 )
 
@@ -43,8 +42,8 @@ func (a Ability) Challenge(other Ability) (didSucceed bool) {
 			didSucceed = value > otherValue
 		}
 	}
-	event := logger.Event{LogLevel: logger.Debug, Message: fmt.Sprintf("attacker: {h: %t, r: %d}, defender: {h: %t, r: %d}", success, value, otherSuccess, otherValue)}
-	logger.GlobalLog.AppendEvent(event)
+	event := eugor.Event{LogLevel: eugor.Debug, Message: fmt.Sprintf("attacker: {h: %t, r: %d}, defender: {h: %t, r: %d}", success, value, otherSuccess, otherValue)}
+	eugor.GlobalLog.AppendEvent(event)
 	return didSucceed
 }
 
@@ -61,7 +60,7 @@ func (a Ability) Roll() (success bool, value int) {
 }
 
 func roll(dieType DieType, number int) int {
-	rng := prng.MakePrng()
+	rng := eugor.MakePrng()
 	sum := 0
 	for i := 0; i < number; i++ {
 		sum += rng.Intn(int(dieType)) + 1

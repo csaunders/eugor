@@ -1,4 +1,4 @@
-package algebra
+package eugor
 
 import "math"
 
